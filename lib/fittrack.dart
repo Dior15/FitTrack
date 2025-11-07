@@ -57,6 +57,7 @@ class FitTrackShell extends StatefulWidget {
 
 class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
+  DBModel db = DBModel.db;
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   onPressed: () async {
                     final meal = await showMealEntryDialog(context);
                     // if (meal != null) InMemoryEntryStore.instance.addMeal(meal);
+                    print(await db.getAllFoodData());
                   },
                   child: const Text('Add Meal'),
                 ),
