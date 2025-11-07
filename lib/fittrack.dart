@@ -5,8 +5,33 @@ import 'taskbar.dart';
 import 'card.dart';
 import 'db_model.dart';
 
-void main() {
+void main() async {
   runApp(const FitTrackApp());
+  DBModel db = DBModel.db;
+  // await db.clearDB();
+  await db.initDatabase();
+  // await db.insertMockData();
+
+  // ===== DBMODEL METHOD TESTS =====
+  // print(await db.getAllFoodData());
+  // print(await db.getAllFoodRecords());
+  // print(await db.getAllExerciseData());
+  // print(await db.getAllExerciseRecords());
+
+  // print(await db.getFoodDataById(1));
+  // print(await db.getFoodRecordById(1));
+  // print(await db.getExerciseDataById(1));
+  // print(await db.getExerciseRecordById(1));
+
+  // print(await db.getFoodRecordsByUid(1));
+  // print(await db.getFoodRecordsByUid(2));
+  // print(await db.getExerciseRecordsByUid(1));
+  // print(await db.getExerciseRecordsByUid(2));
+
+  // await db.deleteFoodDataById(1);
+  // await db.deleteFoodRecordById(1);
+  // await db.deleteExerciseDataById(1);
+  // await db.deleteExerciseRecordById(1);
 }
 
 class FitTrackApp extends StatelessWidget {
@@ -35,8 +60,6 @@ class _FitTrackShellState extends State<FitTrackShell> {
   @override
   void initState() {
     super.initState();
-    DBModel db = DBModel.db;
-    db.initDatabase();
   }
 
   // Add taskbar pages here
