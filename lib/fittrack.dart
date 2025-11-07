@@ -4,6 +4,7 @@ import 'page.dart';
 import 'taskbar.dart';
 import 'card.dart';
 import 'db_model.dart';
+import 'entryforms.dart';
 
 void main() {
   runApp(const FitTrackApp());
@@ -40,48 +41,60 @@ class _FitTrackShellState extends State<FitTrackShell> {
   }
 
   // Add taskbar pages here
-  final List<FitTrackPage> _pages = const [
+  List<FitTrackPage> _buildPages(BuildContext context) => [
     FitTrackPage(
-      title: 'Home',
-      icon: Icons.home_rounded,
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            FitCard(
-              title: 'Nutrition',
-              icon: Icons.insights_rounded,
-              content: Placeholder(fallbackHeight: 120),
-            ),
-            FitCard(
-              title: 'Food',
-              icon: Icons.restaurant_menu_rounded,
-              content: Placeholder(fallbackHeight: 80),
-              sideBySide: FitCard(
-                title: 'Exercise',
-                icon: Icons.fitness_center_rounded,
-                content: Placeholder(fallbackHeight: 80),
+        title: 'Home',
+        icon: Icons.home_rounded,
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              FitCard(
+                  title: 'Nutrition',
+                  icon: Icons.insights_rounded,
+                  content: Placeholder(fallbackHeight: 60)
               ),
-            ),
-            FitCard(
-              title: 'Steps',
-              icon: Icons.directions_walk_rounded,
-              content: Placeholder(fallbackHeight: 60),
-            ),
-          ],
-        ),
-      )
+              FitCard(
+                title: 'Food',
+                icon: Icons.restaurant_menu_rounded,
+                content: ElevatedButton(
+                  onPressed: () async {
+                    final meal = await showMealEntryDialog(context);
+                    // if (meal != null) InMemoryEntryStore.instance.addMeal(meal);
+                  },
+                  child: const Text('Add Meal'),
+                ),
+                sideBySide: FitCard(
+                  title: 'Exercise',
+                  icon: Icons.fitness_center_rounded,
+                  content: ElevatedButton(
+                    onPressed: () async {
+                      final workout = await showWorkoutEntryDialog(context);
+                      // if (workout != null) InMemoryEntryStore.instance.addWorkout(workout);
+                    },
+                    child: const Text('Add Workout'),
+                  ),
+                ),
+              ),
+              FitCard(
+                title: 'Steps',
+                icon: Icons.directions_walk_rounded,
+                content: Placeholder(fallbackHeight: 60),
+              ),
+            ],
+          ),
+        )
     ),
-    FitTrackPage(
+    const FitTrackPage(
       title: 'Food',
       icon: Icons.restaurant_menu_rounded,
       content: Center(child: Text('Food Log')),
     ),
-    FitTrackPage(
+    const FitTrackPage(
       title: 'Train',
       icon: Icons.fitness_center_rounded,
       content: Center(child: Text('Workouts')),
     ),
-    FitTrackPage(
+    const FitTrackPage(
       title: 'Log',
       icon: Icons.book,
       content: Center(child: Text('More / Profile')),
@@ -90,16 +103,16 @@ class _FitTrackShellState extends State<FitTrackShell> {
 
   @override
   Widget build(BuildContext context) {
-    final current = _pages[_index];
+    final pages = _buildPages(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(current.title)),
+      appBar: AppBar(title: Text(pages[_index].title)),
       body: IndexedStack(
         index: _index,
-        children: _pages.map((p) => _PageContainer(child: p.content)).toList(),
+        children: _buildPages(context).map((p) => _PageContainer(child: p.content)).toList(),
       ),
       bottomNavigationBar: AppTaskbar(
-        pages: _pages,
+        pages: _buildPages(context),
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
       ),
