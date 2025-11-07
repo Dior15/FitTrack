@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'page.dart';
 import 'taskbar.dart';
 import 'card.dart';
+import 'db_model.dart';
 
-
-void main() => runApp(const FitTrackApp());
+void main() {
+  runApp(const FitTrackApp());
+}
 
 class FitTrackApp extends StatelessWidget {
   const FitTrackApp({super.key});
@@ -29,6 +31,13 @@ class FitTrackShell extends StatefulWidget {
 
 class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    DBModel db = DBModel.db;
+    db.initDatabase();
+  }
 
   // Add taskbar pages here
   final List<FitTrackPage> _pages = const [
