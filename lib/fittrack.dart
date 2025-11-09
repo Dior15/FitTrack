@@ -1,10 +1,13 @@
 // lib/fittrack.dart
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'page.dart';
 import 'taskbar.dart';
 import 'card.dart';
 import 'db_model.dart';
 import 'entryforms.dart';
+import 'notification.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 void main() async {
   runApp(const FitTrackApp());
@@ -33,6 +36,25 @@ void main() async {
   // await db.deleteFoodRecordById(1);
   // await db.deleteExerciseDataById(1);
   // await db.deleteExerciseRecordById(1);
+
+  // Notification Stuff
+  tz.initializeTimeZones();
+  final notif = Notification();
+  await notif.init();
+
+  final testTime = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+  notif.sendNoficationMealtime("Test", "mealtime", "payload", testTime);
+
+  List<tz.TZDateTime> mealTimes = [];
+  // mealTimes.add(tz.TZDateTime(toronto, year))
+  mealTimes.add(tz.TZDateTime(tz.local, DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0, 0));
+  mealTimes.add(tz.TZDateTime(tz.local, DateTime.now().year, DateTime.now().month, DateTime.now().day, 14, 0, 0));
+  mealTimes.add(tz.TZDateTime(tz.local, DateTime.now().year, DateTime.now().month, DateTime.now().day, 20, 0, 0));
+
+  for (tz.TZDateTime mealTime in mealTimes) {
+    notif.sendNoficationMealtime("Mealtime!", "Don't forget to log your meal stats in FitTrack!", "payload", mealTime);
+  }
+
 }
 
 class FitTrackApp extends StatelessWidget {
