@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'db_model.dart';
 
 /// Meal and Workout Classes
 class MealEntry {
   final String name;
   final int calories;
-  final double protein;
-  final double carbs;
-  final double fat;
+  final int protein;
+  final int carbs;
+  final int fat;
   final int servings;
   final DateTime date;
 
@@ -20,15 +21,15 @@ class MealEntry {
     required this.date,
   });
 
-  Map<String, dynamic> toMap() => {
-    'name': name,
-    'calories': calories,
-    'protein': protein,
-    'carbs': carbs,
-    'fat': fat,
-    'servings': servings,
-    'date': date.toIso8601String(),
-  };
+  // Map<String, dynamic> toMap() => {
+  //   'name': name,
+  //   'calories': calories,
+  //   'protein': protein,
+  //   'carbs': carbs,
+  //   'fat': fat,
+  //   'servings': servings,
+  //   'date': date.toIso8601String(),
+  // };
 }
 
 class WorkoutEntry {
@@ -48,14 +49,82 @@ class WorkoutEntry {
     required this.dateTime,
   });
 
-  Map<String, dynamic> toMap() => {
-    'name': name,
-    'muscleGroup': muscleGroup,
-    'sets': sets,
-    'reps': reps,
-    'weight': weight,
-    'dateTime': dateTime.toIso8601String(),
-  };
+  // Map<String, dynamic> toMap() => {
+  //   'name': name,
+  //   'muscleGroup': muscleGroup,
+  //   'sets': sets,
+  //   'reps': reps,
+  //   'weight': weight,
+  //   'dateTime': dateTime.toIso8601String(),
+  // };
+}
+
+/// Format as 'YYYY/MM/DD' to match db.
+String _fmtDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}/${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
+
+/// Format as 'HH:mm' 24h for exerciseRecords.time
+String _fmtTime(TimeOfDay t) =>
+    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+/// Shows the Add Meal dialog, then inserts into:
+/// 1) foodData (name + macros), 2) foodRecords (link to data + uid/date/servings).
+/// Returns the new foodRecords.frid, or null if cancelled.
+Future<int?> addMealViaDialog(BuildContext context, {required int uid}) async {
+  final meal = await showMealEntryDialog(context);
+  if (meal == null) return null; // user cancelled
+
+  await DBModel.db.initDatabase();   // make sure DB is opened
+  final db = DBModel.db.database;
+
+  // 1) Insert into foodData and get fid.
+  final fid = await db.insert('foodData', {
+    'name': meal.name,
+    'calories': meal.calories,
+    'protein': meal.protein,
+    'fat': meal.fat,
+    'carbohydrates': meal.carbs,
+  });
+
+  // 2) Insert into foodRecords referencing fid and the active user.
+  final frid = await db.insert('foodRecords', {
+    'uid': uid,
+    'fid': fid,
+    'date': _fmtDate(meal.date),
+    'servings': meal.servings,
+  });
+
+  return frid;
+}
+
+/// Shows the Add Workout dialog, then inserts into:
+/// 1) exerciseData (exercise details), 2) exerciseRecords (link + uid/date/time).
+/// Returns the new exerciseRecords.erid, or null if cancelled.
+Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid}) async {
+  final workout = await showWorkoutEntryDialog(context); // existing dialog [web:64]
+  if (workout == null) return null;
+
+  await DBModel.db.initDatabase();          // make sure DB is opened
+  final db = DBModel.db.database;
+
+  // 1) Insert into exerciseData and get eid.
+  final eid = await db.insert('exerciseData', {
+    'name': workout.name,
+    'muscle': workout.muscleGroup,
+    'sets': workout.sets,
+    'reps': workout.reps,
+    'weight': workout.weight,
+  });
+
+  // 2) Insert into exerciseRecords with date + time columns.
+  final erid = await db.insert('exerciseRecords', {
+    'uid': uid,
+    'eid': eid,
+    'date': _fmtDate(workout.dateTime),
+    'time': _fmtTime(TimeOfDay.fromDateTime(workout.dateTime)),
+  });
+
+  return erid;
 }
 
 /// Dialog forms for meals and workouts that return their respective classes
@@ -95,9 +164,9 @@ Future<MealEntry?> showMealEntryDialog(BuildContext context) {
       collectResult: () => MealEntry(
         name: name.text.trim(),
         calories: int.parse(calories.text),
-        protein: double.parse(protein.text),
-        carbs: double.parse(carbs.text),
-        fat: double.parse(fat.text),
+        protein: int.parse(protein.text),
+        carbs: int.parse(carbs.text),
+        fat: int.parse(fat.text),
         servings: int.parse(servings.text),
         date: date,
       ),
@@ -125,7 +194,7 @@ Future<WorkoutEntry?> showWorkoutEntryDialog(BuildContext context) {
           child: ValueListenableBuilder<String>(
             valueListenable: muscle,
             builder: (context, value, _) => DropdownButtonFormField<String>(
-              value: value,
+              initialValue: value,
               decoration: const InputDecoration(
                 labelText: 'Muscle Group',
                 border: OutlineInputBorder(),

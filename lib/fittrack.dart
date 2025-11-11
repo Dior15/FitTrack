@@ -6,16 +6,17 @@ import 'card.dart';
 import 'db_model.dart';
 import 'entryforms.dart';
 import 'notification.dart';
+import 'log.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 void main() async {
-  runApp(const FitTrackApp());
+  WidgetsFlutterBinding.ensureInitialized(); // prepare engine before async init [web:244][web:223]
   DBModel db = DBModel.db;
   // await db.clearDB();
   await db.initDatabase();
   // await db.insertMockData();
-
+  runApp(const FitTrackApp());
   // ===== DBMODEL METHOD TESTS =====
   // print(await db.getAllFoodData());
   // print(await db.getAllFoodRecords());
@@ -84,6 +85,7 @@ class FitTrackShell extends StatefulWidget {
 class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
   DBModel db = DBModel.db;
+  final logKey = GlobalKey<LogListState>();
 
   @override
   void initState() {
@@ -108,9 +110,12 @@ class _FitTrackShellState extends State<FitTrackShell> {
                 icon: Icons.restaurant_menu_rounded,
                 content: ElevatedButton(
                   onPressed: () async {
-                    final meal = await showMealEntryDialog(context);
-                    // if (meal != null) InMemoryEntryStore.instance.addMeal(meal);
-                    print(await db.getAllFoodData());
+                    final frid = await addMealViaDialog(context, uid: 1); // supply current user id
+                    if (frid != null) {
+                      // trigger any local refresh/state update if needed
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meal saved')));
+                      logKey.currentState?.reload();
+                    }
                   },
                   child: const Text('Add Meal'),
                 ),
@@ -119,8 +124,11 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   icon: Icons.fitness_center_rounded,
                   content: ElevatedButton(
                     onPressed: () async {
-                      final workout = await showWorkoutEntryDialog(context);
-                      // if (workout != null) InMemoryEntryStore.instance.addWorkout(workout);
+                      final erid = await addWorkoutViaDialog(context, uid: 1);
+                      if (erid != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout saved')));
+                        logKey.currentState?.reload();
+                      }
                     },
                     child: const Text('Add Workout'),
                   ),
@@ -145,10 +153,10 @@ class _FitTrackShellState extends State<FitTrackShell> {
       icon: Icons.fitness_center_rounded,
       content: Center(child: Text('Workouts')),
     ),
-    const FitTrackPage(
+    FitTrackPage(
       title: 'Log',
       icon: Icons.book,
-      content: Center(child: Text('More / Profile')),
+      content: LogList(key: logKey),
     ),
   ];
 

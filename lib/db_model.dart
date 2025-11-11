@@ -20,13 +20,13 @@ class DBModel {
           await db.execute(
             'CREATE TABLE users(uid INTEGER PRIMARY KEY AUTOINCREMENT)');
           await db.execute(
-            'CREATE TABLE foodData(fid INTEGER PRIMARY KEY AUTOINCREMENT, name STRING, calories INTEGER,protein INTEGER, fat INTEGER, carbohydrates INTEGER)');
+            'CREATE TABLE foodData(fid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, calories INTEGER,protein INTEGER, fat INTEGER, carbohydrates INTEGER)');
           await db.execute(
-            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date STRING, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
+            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date TEXT, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
           await db.execute(
-            'CREATE TABLE exerciseData(eid INTEGER PRIMARY KEY AUTOINCREMENT, name STRING, muscle STRING, sets INTEGER, reps INTEGER, weight INTEGER)');
+            'CREATE TABLE exerciseData(eid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, muscle TEXT, sets INTEGER, reps INTEGER, weight INTEGER)');
           await db.execute(
-            'CREATE TABLE exerciseRecords(erid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, eid INTEGER, date STRING, time STRING, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (eid) REFERENCES exerciseData(eid))');
+            'CREATE TABLE exerciseRecords(erid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, eid INTEGER, date TEXT, time TEXT, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (eid) REFERENCES exerciseData(eid))');
         }
       );
       _dbInitialized = true;
@@ -236,7 +236,7 @@ class DBModel {
 
     insertExerciseData({'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':20});
     insertExerciseData({'name':'Weighted Squats', 'muscle':'Leg', 'sets':3, 'reps':12, 'weight':30});
-    insertExerciseData({'name':'Lateral Raise', 'muscle':'deltoid', 'sets':3, 'reps':12, 'weight':15});
+    insertExerciseData({'name':'Lateral Raise', 'muscle':'Deltoid', 'sets':3, 'reps':12, 'weight':15});
 
     insertExerciseRecord({'uid':1, 'eid':1, 'date':'2025/11/07', 'time':'1:00'});
     insertExerciseRecord({'uid':2, 'eid':2, 'date':'2025/11/08', 'time':'2:00'});
