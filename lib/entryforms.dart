@@ -232,7 +232,14 @@ class _FormDialogState<T> extends State<_FormDialog<T>> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(null),
+          // onPressed: () => Navigator.of(context).pop(null),
+          onPressed: () {
+
+            Navigator.of(context).pop(null);
+            final cancelSnackbar = SnackBar(content: Text('Entry cancelled'));
+            ScaffoldMessenger.of(context).showSnackBar(cancelSnackbar);
+            
+          },
           child: const Text('Cancel'),
         ),
         FilledButton(
@@ -241,6 +248,10 @@ class _FormDialogState<T> extends State<_FormDialog<T>> {
             if (_formKey.currentState?.validate() ?? false) {
               Navigator.of(context).pop(widget.collectResult());
             }
+
+            final submittedSnackbar = SnackBar(content: Text('Successfully submitted!'));
+            ScaffoldMessenger.of(context).showSnackBar(submittedSnackbar);
+
           },
           child: const Text('Save'),
         ),

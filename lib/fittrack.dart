@@ -38,12 +38,13 @@ void main() async {
   // await db.deleteExerciseRecordById(1);
 
   // Notification Stuff
+  // NOTE: as commented in notification class, this block is arbitrary, won't show properly in this version
   tz.initializeTimeZones();
   final notif = Notification();
   await notif.init();
 
   final testTime = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
-  notif.sendNoficationMealtime("Test", "mealtime", "payload", testTime);
+  notif.sendNotificationMealtime("Test", "mealtime", "payload", testTime);
 
   List<tz.TZDateTime> mealTimes = [];
   // mealTimes.add(tz.TZDateTime(toronto, year))
@@ -52,8 +53,11 @@ void main() async {
   mealTimes.add(tz.TZDateTime(tz.local, DateTime.now().year, DateTime.now().month, DateTime.now().day, 20, 0, 0));
 
   for (tz.TZDateTime mealTime in mealTimes) {
-    notif.sendNoficationMealtime("Mealtime!", "Don't forget to log your meal stats in FitTrack!", "payload", mealTime);
+    notif.sendNotificationMealtime("Mealtime!", "Don't forget to log your meal stats in FitTrack!", "payload", mealTime);
   }
+
+  // NOTE: as commented in notification class, placeholder function
+  notif.sendNotificationDelayed();
 
 }
 
