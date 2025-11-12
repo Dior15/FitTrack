@@ -7,6 +7,7 @@ import 'db_model.dart';
 import 'entryforms.dart';
 import 'notification.dart';
 import 'log.dart';
+import 'graphing.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -103,7 +104,27 @@ class _FitTrackShellState extends State<FitTrackShell> {
               FitCard(
                   title: 'Nutrition',
                   icon: Icons.insights_rounded,
-                  content: Placeholder(fallbackHeight: 60)
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min, //shrink to fit
+                        children: [
+                          DayGraph(dimensions: Size(60,60)),
+                          const SizedBox(height:4),
+                          const Text("Weekly")
+                        ],
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min, //shrink to fit
+                        children: [
+                          DayGraph(dimensions: Size(60,60)),
+                          const SizedBox(height:4),
+                          const Text("Daily")
+                        ],
+                      ),
+                    ],
+                  )
               ),
               FitCard(
                 title: 'Food',
