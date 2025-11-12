@@ -158,7 +158,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
               FitCard(
                 title: 'Steps',
                 icon: Icons.directions_walk_rounded,
-                content: Placeholder(fallbackHeight: 60),
+                content: StepGraph(height: 60),
               ),
             ],
           ),

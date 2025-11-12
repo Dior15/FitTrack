@@ -67,3 +67,62 @@ class SegmentedCircle extends CustomPainter {
   @override
   bool shouldRepaint(SegmentedCircle oldDelegate) => false;
 }
+
+
+class StepGraph extends StatefulWidget {
+  final double height;
+
+  const StepGraph({
+    super.key,
+    required this.height
+  });
+
+  @override
+  State<StatefulWidget> createState() => StepGraphState();
+}
+
+
+class StepGraphState extends State<StepGraph> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: StepBars(),
+      child: SizedBox(
+        height: widget.height,
+      )
+    );
+  }
+}
+
+
+class StepBars extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint style = Paint();
+
+    //Styling bar details
+    //style.style = PaintingStyle.stroke;
+    style.strokeCap = StrokeCap.round;
+    style.strokeWidth = 8;
+    style.color = Color.fromARGB(200, 115, 115, 115);
+
+    //Placeholder bar graph
+    //TODO: Populate using step data, when step data is implemented
+    var scales = [5, 15, 20, 10, 30, 50, 45, 52, 50, 25, 10, 4, 23, 21, 48];
+    //canvas.drawLine(Offset(10,10), Offset(20,20), style);
+    for (int i = 0; i < scales.length; i++) {
+      canvas.drawLine(Offset(i*12.0+10, 58.0), Offset(i*12.0+10, 58.0-scales[i]), style);
+    }
+
+  }
+
+  //TODO: Update when step data changes
+  @override
+  bool shouldRepaint(StepBars oldDelegate) => false;
+
+}
