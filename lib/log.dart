@@ -135,6 +135,20 @@ class _LogTile extends StatelessWidget {
   final _UnifiedEntry entry;
   const _LogTile({required this.entry});
 
+  // Helper method to create a food stat for the food ExpansionTile
+  Widget _expandedFood (String val) {
+
+    return Padding(
+
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(children: [
+        Text(val),
+      ],),
+
+    );
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final date = MaterialLocalizations.of(context).formatShortDate(entry.at);
@@ -157,12 +171,64 @@ class _LogTile extends StatelessWidget {
         'Serv: $servings',
       ].join(' • ');
 
-      return ListTile(
+      // return ListTile(
+      //   leading: const CircleAvatar(child: Icon(Icons.restaurant_menu_rounded)),
+      //   title: Text(name),
+      //   subtitle: Text('$stats • $date'), // only date for meals
+      //   // trailing: Text(time, style: Theme.of(context).textTheme.bodySmall),
+      // );
+
+      // Expandable logs
+      return ExpansionTile(
+
+        // Basic info
         leading: const CircleAvatar(child: Icon(Icons.restaurant_menu_rounded)),
         title: Text(name),
-        subtitle: Text('$stats • $date'), // only date for meals
-        // trailing: Text(time, style: Theme.of(context).textTheme.bodySmall),
+        subtitle: Text('$stats • $date'),
+
+        //Expanded content
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // children: leftColumn.map((e) => _buildItem(e.key, e.value)).toList(),
+                    children: [
+                      _expandedFood("Calories: $cal cals"),
+                      _expandedFood("Protein: $p grams"),
+                      _expandedFood("Carbs: $c grams"),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    // children: rightColumn.map((e) => _buildItem(e.key, e.value)).toList(),
+                    children: [
+                      _expandedFood("Fat: $f grams"),
+                      _expandedFood("Servings: $servings"),
+                      _expandedFood(date),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        // children: [
+        //
+        //   Row(children: [Text(stats[0]),])
+        //
+        //
+        // ],
+
+
       );
+
     } else {
       final d = entry.data ?? const {};
       final name = (d['name'] as String?) ?? 'Workout';

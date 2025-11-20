@@ -72,6 +72,7 @@ class FitTrackApp extends StatelessWidget {
       title: 'FitTrack',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
       home: const FitTrackShell(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
