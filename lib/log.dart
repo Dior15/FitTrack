@@ -136,7 +136,7 @@ class _LogTile extends StatelessWidget {
   const _LogTile({required this.entry});
 
   // Helper method to create a food stat for the food ExpansionTile
-  Widget _expandedFood (String val) {
+  Widget _expandedLog (String val) {
 
     return Padding(
 
@@ -171,13 +171,6 @@ class _LogTile extends StatelessWidget {
         'Serv: $servings',
       ].join(' • ');
 
-      // return ListTile(
-      //   leading: const CircleAvatar(child: Icon(Icons.restaurant_menu_rounded)),
-      //   title: Text(name),
-      //   subtitle: Text('$stats • $date'), // only date for meals
-      //   // trailing: Text(time, style: Theme.of(context).textTheme.bodySmall),
-      // );
-
       // Expandable logs
       return ExpansionTile(
 
@@ -197,9 +190,9 @@ class _LogTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     // children: leftColumn.map((e) => _buildItem(e.key, e.value)).toList(),
                     children: [
-                      _expandedFood("Calories: $cal cals"),
-                      _expandedFood("Protein: $p grams"),
-                      _expandedFood("Carbs: $c grams"),
+                      _expandedLog("Calories: $cal cals"),
+                      _expandedLog("Protein: $p grams"),
+                      _expandedLog("Carbs: $c grams"),
                     ],
                   ),
                 ),
@@ -208,9 +201,9 @@ class _LogTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     // children: rightColumn.map((e) => _buildItem(e.key, e.value)).toList(),
                     children: [
-                      _expandedFood("Fat: $f grams"),
-                      _expandedFood("Servings: $servings"),
-                      _expandedFood(date),
+                      _expandedLog("Fat: $f grams"),
+                      _expandedLog("Servings: $servings"),
+                      _expandedLog("Date: $date"),
                     ],
                   ),
                 ),
@@ -218,14 +211,6 @@ class _LogTile extends StatelessWidget {
             ),
           ),
         ],
-
-        // children: [
-        //
-        //   Row(children: [Text(stats[0]),])
-        //
-        //
-        // ],
-
 
       );
 
@@ -243,11 +228,46 @@ class _LogTile extends StatelessWidget {
         if (weight != null) '@ $weight kg',
       ].join(' • ');
 
-      return ListTile(
+      return ExpansionTile(
+
+        // Basic info
         leading: const CircleAvatar(child: Icon(Icons.fitness_center_rounded)),
         title: Text(name),
-        subtitle: Text('$stats • $date $time'), // workouts have date+time
+        subtitle: Text('$stats • $date'),
+
+        //Expanded content
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _expandedLog("Muscle: $muscle"),
+                      _expandedLog("Sets: $sets"),
+                      _expandedLog("Date: $date")
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _expandedLog("Weight: $weight kg"),
+                      _expandedLog("Reps: $reps"),
+                      _expandedLog("Time: $time"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
       );
+
     }
   }
 }
