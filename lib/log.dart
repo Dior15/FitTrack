@@ -14,7 +14,7 @@ class LogList extends StatefulWidget {
 
 class LogListState extends State<LogList> {
   late Future<List<_UnifiedEntry>> _future;
-  final DBModel _db = DBModel.db;
+  final db = DBModel.db;
 
   @override
   void initState() {
@@ -37,15 +37,15 @@ class LogListState extends State<LogList> {
     await DBModel.db.initDatabase();
     // Fetch records (user-entered rows only).
     final foodRecs = widget.uid == null
-        ? await _db.getAllFoodRecords()
-        : await _db.getFoodRecordsByUid(widget.uid!); // frid, uid, fid, date, servings
+        ? await db.getAllFoodRecords()
+        : await db.getFoodRecordsByUid(widget.uid!); // frid, uid, fid, date, servings
     final exRecs = widget.uid == null
-        ? await _db.getAllExerciseRecords()
-        : await _db.getExerciseRecordsByUid(widget.uid!); // erid, uid, eid, date, time
+        ? await db.getAllExerciseRecords()
+        : await db.getExerciseRecordsByUid(widget.uid!); // erid, uid, eid, date, time
 
     // Fetch reference tables to resolve names/macros and lift details.
-    final foods = await _db.getAllFoodData(); // fid, name, calories, protein, fat, carbohydrates
-    final exercises = await _db.getAllExerciseData(); // eid, name, muscle, sets, reps, weight
+    final foods = await db.getAllFoodData(); // fid, name, calories, protein, fat, carbohydrates
+    final exercises = await db.getAllExerciseData(); // eid, name, muscle, sets, reps, weight
 
     // Build quick lookup maps for joins.
     final foodById = {for (final f in foods) (f['fid'] as int): f};

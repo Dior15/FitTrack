@@ -39,6 +39,9 @@ void main() async {
   // await db.deleteExerciseDataById(1);
   // await db.deleteExerciseRecordById(1);
 
+  // await db.updateFoodData({'fid':1, 'name':'Burrito', 'calories':800, 'protein':50, 'fat':5, 'carbohydrates':10});
+  // await db.updateExerciseData({'eid':1, 'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':50});
+
   // Notification Stuff
   // NOTE: as commented in notification class, this block is arbitrary, won't show properly in this version
   tz.initializeTimeZones();
@@ -86,7 +89,6 @@ class FitTrackShell extends StatefulWidget {
 
 class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
-  DBModel db = DBModel.db;
   final logKey = GlobalKey<LogListState>();
 
   @override

@@ -34,8 +34,8 @@ class DBModel {
   }
 
   /// food should be a map containing all the attributes {String name, int calories, int protein, int fat, int carbohydrates}
-  Future<void> insertFoodData(Map<String, dynamic> food) async {
-    await database.insert(
+  Future<int> insertFoodData(Map<String, dynamic> food) async {
+    return await database.insert(
       'foodData',
       {
         'name': food['name'],
@@ -75,9 +75,26 @@ class DBModel {
     );
   }
 
+  /// Update food data, just pass the updated food data dictionary to the method, make sure the fid is a part of this dictionary
+  Future<void> updateFoodData(Map<String, dynamic> food) async {
+    await database.update(
+        'foodData',
+        {
+          'fid':food['fid'],
+          'name': food['name'],
+          'calories': food['calories'],
+          'protein': food['protein'],
+          'fat': food['fat'],
+          'carbohydrates': food['carbohydrates']
+        },
+      where:'fid = ?',
+      whereArgs:[food['fid']]
+    );
+  }
+
   /// foodRecord should be a map containing all the attributes {int uid, int fid, String date, int servings}
-  Future<void> insertFoodRecord(Map<String, dynamic> foodRecord) async {
-    await database.insert(
+  Future<int> insertFoodRecord(Map<String, dynamic> foodRecord) async {
+    return await database.insert(
       'foodRecords',
       {
         'uid':foodRecord['uid'],
@@ -125,9 +142,25 @@ class DBModel {
     );
   }
 
+  /// Update food record, just pass the updated food record dictionary to the method, make sure the frid is a part of this dictionary
+  Future<void> updateFoodRecord(Map<String, dynamic> foodRecord) async {
+    await database.update(
+        'foodRecords',
+        {
+          'frid':foodRecord['frid'],
+          'uid':foodRecord['uid'],
+          'fid':foodRecord['fid'],
+          'date':foodRecord['date'],
+          'servings':foodRecord['servings']
+        },
+        where:'frid = ?',
+        whereArgs:[foodRecord['frid']]
+    );
+  }
+
   /// exercise should be a map containing all the attributes {String name, String muscle, int sets, int reps, int weight}
-  Future<void> insertExerciseData(Map<String, dynamic> exercise) async {
-    await database.insert(
+  Future<int> insertExerciseData(Map<String, dynamic> exercise) async {
+    return await database.insert(
       'exerciseData',
       {
         'name': exercise['name'],
@@ -167,9 +200,26 @@ class DBModel {
     );
   }
 
+  /// Update exercise data, just pass the updated exercise data dictionary to the method, make sure the eid is a part of this dictionary
+  Future<void> updateExerciseData(Map<String, dynamic> exercise) async {
+    await database.update(
+      'exerciseData',
+      {
+        'eid':exercise['eid'],
+        'name': exercise['name'],
+        'muscle': exercise['muscle'],
+        'sets': exercise['sets'],
+        'reps': exercise['reps'],
+        'weight': exercise['weight']
+      },
+      where:"eid = ?",
+      whereArgs:[exercise['eid']]
+    );
+  }
+
   /// exerciseRecord should be a map containing all the attributes {int uid, int eid, String date, String time}
-  Future<void> insertExerciseRecord(Map<String, dynamic> exerciseRecord) async {
-    await database.insert(
+  Future<int> insertExerciseRecord(Map<String, dynamic> exerciseRecord) async {
+    return await database.insert(
         'exerciseRecords',
         {
           'uid':exerciseRecord['uid'],
@@ -214,6 +264,22 @@ class DBModel {
         'exerciseRecords',
         where:'erid = ?',
         whereArgs:[erid]
+    );
+  }
+
+  /// Update exercise record, just pass the updated exercise record dictionary to the method, make sure the erid is a part of this dictionary
+  Future<void> updateExerciseRecord(Map<String, dynamic> exerciseRecord) async {
+    await database.update(
+      'exerciseRecords',
+      {
+        'erid':exerciseRecord['erid'],
+        'uid':exerciseRecord['uid'],
+        'eid':exerciseRecord['eid'],
+        'date':exerciseRecord['date'],
+        'time':exerciseRecord['time']
+      },
+      where:'erid = ?',
+      whereArgs:[exerciseRecord['erid']]
     );
   }
 

@@ -74,27 +74,20 @@ Future<int?> addMealViaDialog(BuildContext context, {required int uid}) async {
   final meal = await showMealEntryDialog(context);
   if (meal == null) return null; // user cancelled
 
-  await DBModel.db.initDatabase();   // make sure DB is opened
-  final db = DBModel.db.database;
+  final db = DBModel.db;
 
-  // 1) Insert into foodData and get fid.
-  final fid = await db.insert('foodData', {
-    'name': meal.name,
-    'calories': meal.calories,
-    'protein': meal.protein,
-    'fat': meal.fat,
-    'carbohydrates': meal.carbs,
-  });
-
-  // 2) Insert into foodRecords referencing fid and the active user.
-  final frid = await db.insert('foodRecords', {
+  return await db.insertFoodRecord({
     'uid': uid,
-    'fid': fid,
+    'fid': await db.insertFoodData({
+      'name': meal.name,
+      'calories': meal.calories,
+      'protein': meal.protein,
+      'fat': meal.fat,
+      'carbohydrates': meal.carbs
+    }),
     'date': _fmtDate(meal.date),
-    'servings': meal.servings,
+    'servings': meal.servings
   });
-
-  return frid;
 }
 
 /// Shows the Add Workout dialog, then inserts into:
@@ -104,27 +97,20 @@ Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid}) async
   final workout = await showWorkoutEntryDialog(context); // existing dialog [web:64]
   if (workout == null) return null;
 
-  await DBModel.db.initDatabase();          // make sure DB is opened
-  final db = DBModel.db.database;
+  final db = DBModel.db;
 
-  // 1) Insert into exerciseData and get eid.
-  final eid = await db.insert('exerciseData', {
-    'name': workout.name,
-    'muscle': workout.muscleGroup,
-    'sets': workout.sets,
-    'reps': workout.reps,
-    'weight': workout.weight,
-  });
-
-  // 2) Insert into exerciseRecords with date + time columns.
-  final erid = await db.insert('exerciseRecords', {
+  return await db.insertExerciseRecord({
     'uid': uid,
-    'eid': eid,
+    'eid': await db.insertExerciseData({
+      'name': workout.name,
+      'muscle': workout.muscleGroup,
+      'sets': workout.sets,
+      'reps': workout.reps,
+      'weight': workout.weight,
+    }),
     'date': _fmtDate(workout.dateTime),
-    'time': _fmtTime(TimeOfDay.fromDateTime(workout.dateTime)),
+    'time': _fmtTime(TimeOfDay.fromDateTime(workout.dateTime))
   });
-
-  return erid;
 }
 
 /// Dialog forms for meals and workouts that return their respective classes
