@@ -1,5 +1,6 @@
 // lib/fittrack.dart
 import 'package:flutter/material.dart' hide Notification;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'page.dart';
 import 'taskbar.dart';
 import 'card.dart';
@@ -18,29 +19,7 @@ void main() async {
   await db.initDatabase();
   // await db.insertMockData();
   runApp(const FitTrackApp());
-  // ===== DBMODEL METHOD TESTS =====
-  // print(await db.getAllFoodData());
-  // print(await db.getAllFoodRecords());
-  // print(await db.getAllExerciseData());
-  // print(await db.getAllExerciseRecords());
 
-  // print(await db.getFoodDataById(1));
-  // print(await db.getFoodRecordById(1));
-  // print(await db.getExerciseDataById(1));
-  // print(await db.getExerciseRecordById(1));
-
-  // print(await db.getFoodRecordsByUid(1));
-  // print(await db.getFoodRecordsByUid(2));
-  // print(await db.getExerciseRecordsByUid(1));
-  // print(await db.getExerciseRecordsByUid(2));
-
-  // await db.deleteFoodDataById(1);
-  // await db.deleteFoodRecordById(1);
-  // await db.deleteExerciseDataById(1);
-  // await db.deleteExerciseRecordById(1);
-
-  // await db.updateFoodData({'fid':1, 'name':'Burrito', 'calories':800, 'protein':50, 'fat':5, 'carbohydrates':10});
-  // await db.updateExerciseData({'eid':1, 'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':50});
 
   // Notification Stuff
   // NOTE: as commented in notification class, this block is arbitrary, won't show properly in this version
@@ -89,11 +68,23 @@ class FitTrackShell extends StatefulWidget {
 
 class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
+  double dailyCalories = 0;
+  double dailyCalorieLimit = 2000;
   final logKey = GlobalKey<LogListState>();
 
   @override
   void initState() {
     super.initState();
+    updateDailyCalories();
+  }
+
+  Future<void> updateDailyCalories() async {
+    DBModel db = DBModel.db;
+    DateTime date = DateTime.now();
+    double updatedDailyCalories = await db.getDayFoodRecordByUid(-1,'${date.year.toString().padLeft(4, '0')}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}');
+    setState(() {
+      dailyCalories = updatedDailyCalories;
+    });
   }
 
   // Add taskbar pages here
@@ -113,7 +104,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                       Column(
                         mainAxisSize: MainAxisSize.min, //shrink to fit
                         children: [
-                          DayGraph(dimensions: Size(60,60)),
+                          DayGraph(dimensions: Size(60,60),fillPercentage:0.75),
                           const SizedBox(height:4),
                           const Text("Weekly")
                         ],
@@ -121,7 +112,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                       Column(
                         mainAxisSize: MainAxisSize.min, //shrink to fit
                         children: [
-                          DayGraph(dimensions: Size(60,60)),
+                          DayGraph(dimensions: Size(60,60),fillPercentage:dailyCalories/dailyCalorieLimit),
                           const SizedBox(height:4),
                           const Text("Daily")
                         ],
@@ -138,8 +129,9 @@ class _FitTrackShellState extends State<FitTrackShell> {
                     if (frid != null) {
                       // trigger any local refresh/state update if needed
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meal saved')));
-                      logKey.currentState?.reload();
+                      // logKey.currentState?.reload();
                     }
+                    updateDailyCalories();
                   },
                   child: const Text('Add Meal'),
                 ),
@@ -151,7 +143,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                       final erid = await addWorkoutViaDialog(context, uid: 1);
                       if (erid != null) {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout saved')));
-                        logKey.currentState?.reload();
+                        // logKey.currentState?.reload();
                       }
                     },
                     child: const Text('Add Workout'),

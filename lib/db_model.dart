@@ -22,11 +22,11 @@ class DBModel {
           await db.execute(
             'CREATE TABLE foodData(fid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, calories INTEGER,protein INTEGER, fat INTEGER, carbohydrates INTEGER)');
           await db.execute(
-            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date TEXT, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
+            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date DATE, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
           await db.execute(
             'CREATE TABLE exerciseData(eid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, muscle TEXT, sets INTEGER, reps INTEGER, weight INTEGER)');
           await db.execute(
-            'CREATE TABLE exerciseRecords(erid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, eid INTEGER, date TEXT, time TEXT, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (eid) REFERENCES exerciseData(eid))');
+            'CREATE TABLE exerciseRecords(erid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, eid INTEGER, date DATE, time TEXT, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (eid) REFERENCES exerciseData(eid))');
         }
       );
       _dbInitialized = true;
@@ -156,6 +156,34 @@ class DBModel {
         where:'frid = ?',
         whereArgs:[foodRecord['frid']]
     );
+  }
+
+  Future<double> getDayFoodRecordByUid(int uid, dynamic date) async {
+    List<Map<String, dynamic>> records;
+    // First get relevant records
+    if (uid != -1) {
+      records = await database.query(
+        'foodRecords',
+        columns:['uid','fid','date'],
+        where:'date = ? AND uid = ?',
+        whereArgs:[date, uid]
+      );
+    } else {
+      records = await database.query(
+        'foodRecords',
+        columns:['fid','date'],
+        where:'date = ?',
+        whereArgs:[date]
+      );
+    }
+
+    double todaysCalories = 0;
+    for (Map<String,dynamic> record in records) {
+      final data = await getFoodDataById(record['fid']);
+      todaysCalories += data?['calories'];
+    }
+
+    return(todaysCalories);
   }
 
   /// exercise should be a map containing all the attributes {String name, String muscle, int sets, int reps, int weight}
@@ -293,12 +321,12 @@ class DBModel {
   /// Create mock data in all tables for testing ~ run only once to populate, then remove
   Future<void> insertMockData() async {
     insertFoodData({'name':'Burrito', 'calories':900, 'protein':50, 'fat':5, 'carbohydrates':10});
-    insertFoodData({'name':'Taco', 'calories':500, 'protein':30, 'fat':5, 'carbohydrates':5});
-    insertFoodData({'name':'French Fries', 'calories':400, 'protein':0, 'fat':10, 'carbohydrates':40});
+    insertFoodData({'name':'Taco', 'calories':550, 'protein':30, 'fat':5, 'carbohydrates':5});
+    insertFoodData({'name':'French Fries', 'calories':450, 'protein':0, 'fat':10, 'carbohydrates':40});
 
-    insertFoodRecord({'uid':1, 'fid':1, 'date':'2025/11/07', 'servings':1});
-    insertFoodRecord({'uid':1, 'fid':2, 'date':'2025/11/08', 'servings':1});
-    insertFoodRecord({'uid':2, 'fid':3, 'date':'2025/11/09', 'servings':1});
+    insertFoodRecord({'uid':1, 'fid':1, 'date':'2025/11/09', 'servings':1});
+    insertFoodRecord({'uid':1, 'fid':2, 'date':'${DateTime.now().year.toString().padLeft(4, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().day.toString().padLeft(2, '0')}', 'servings':1});
+    insertFoodRecord({'uid':2, 'fid':3, 'date':'${DateTime.now().year.toString().padLeft(4, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().day.toString().padLeft(2, '0')}', 'servings':1});
 
     insertExerciseData({'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':20});
     insertExerciseData({'name':'Weighted Squats', 'muscle':'Leg', 'sets':3, 'reps':12, 'weight':30});
