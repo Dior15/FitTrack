@@ -158,7 +158,7 @@ class DBModel {
     );
   }
 
-  Future<double> getDayFoodRecordByUid(int uid, dynamic date) async {
+  Future<List<double>> getDayFoodRecordByUid(int uid, dynamic date) async {
     List<Map<String, dynamic>> records;
     // First get relevant records
     if (uid != -1) {
@@ -178,12 +178,18 @@ class DBModel {
     }
 
     double todaysCalories = 0;
+    double todaysProtein = 0;
+    double todaysFat = 0;
+    double todaysCarbs = 0;
     for (Map<String,dynamic> record in records) {
       final data = await getFoodDataById(record['fid']);
       todaysCalories += data?['calories'];
+      todaysProtein += data?['protein'];
+      todaysFat += data?['fat'];
+      todaysCarbs += data?['carbohydrates'];
     }
 
-    return(todaysCalories);
+    return([todaysCalories,todaysProtein,todaysFat,todaysCarbs]);
   }
 
   /// exercise should be a map containing all the attributes {String name, String muscle, int sets, int reps, int weight}

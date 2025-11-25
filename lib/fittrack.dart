@@ -70,6 +70,12 @@ class _FitTrackShellState extends State<FitTrackShell> {
   int _index = 0;
   double dailyCalories = 0;
   double dailyCalorieLimit = 2000;
+  double dailyProtein = 0;
+  double dailyProteinLimit = 50;
+  double dailyCarbs = 0;
+  double dailyCarbsLimit = 50;
+  double dailyFat = 0;
+  double dailyFatLimit = 50;
   final logKey = GlobalKey<LogListState>();
 
   @override
@@ -81,9 +87,12 @@ class _FitTrackShellState extends State<FitTrackShell> {
   Future<void> updateDailyCalories() async {
     DBModel db = DBModel.db;
     DateTime date = DateTime.now();
-    double updatedDailyCalories = await db.getDayFoodRecordByUid(-1,'${date.year.toString().padLeft(4, '0')}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}');
+    List<double> updatedDailyInfo = await db.getDayFoodRecordByUid(-1,'${date.year.toString().padLeft(4, '0')}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}');
     setState(() {
-      dailyCalories = updatedDailyCalories;
+      dailyCalories = updatedDailyInfo[0];
+      dailyProtein = updatedDailyInfo[1];
+      dailyFat = updatedDailyInfo[2];
+      dailyCarbs = updatedDailyInfo[3];
     });
   }
 
@@ -101,20 +110,20 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   content: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                      // Column(
+                      //   mainAxisSize: MainAxisSize.min, //shrink to fit
+                      //   children: [
+                      //     DayGraph(dimensions: Size(60,60),fillPercentage:0.75),
+                      //     const SizedBox(height:4),
+                      //     const Text("Weekly")
+                      //   ],
+                      // ),
                       Column(
                         mainAxisSize: MainAxisSize.min, //shrink to fit
                         children: [
-                          DayGraph(dimensions: Size(60,60),fillPercentage:0.75),
-                          const SizedBox(height:4),
-                          const Text("Weekly")
-                        ],
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min, //shrink to fit
-                        children: [
-                          DayGraph(dimensions: Size(60,60),fillPercentage:dailyCalories/dailyCalorieLimit),
-                          const SizedBox(height:4),
-                          const Text("Daily")
+                          DayGraph(dimensions: Size(200,200), dailyCalories:dailyCalories, dailyCalorieLimit:dailyCalorieLimit, unit:'cals'),
+                          const SizedBox(height:10),
+                          const Text("Daily", style:TextStyle(fontSize:24))
                         ],
                       ),
                     ],
@@ -149,6 +158,41 @@ class _FitTrackShellState extends State<FitTrackShell> {
                     child: const Text('Add Workout'),
                   ),
                 ),
+              ),
+              FitCard(
+                title:'Macros',
+                icon: Icons.insights_rounded,
+                content: Column(
+
+                children:[
+                  Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:[
+                    Column(
+                      children:[
+                        DayGraph(dimensions: Size(125,125), dailyCalories:dailyProtein, dailyCalorieLimit:dailyProteinLimit, unit:'g'),
+                        const SizedBox(height:10),
+                        const Text("Protein", style:TextStyle(fontSize:16))
+                      ]
+                    ),
+                    SizedBox(width:50),
+                    Column(
+                      children:[
+                        DayGraph(dimensions: Size(125,125), dailyCalories:dailyCarbs, dailyCalorieLimit:dailyCarbsLimit, unit:'g'),
+                        const SizedBox(height:10),
+                        const Text("Carbs", style:TextStyle(fontSize:16))
+                      ]
+                    ),
+                  ]),
+                  SizedBox(height:20),
+                  Column(
+                    children:[
+                      DayGraph(dimensions: Size(125,125), dailyCalories:dailyFat, dailyCalorieLimit:dailyFatLimit, unit:'g'),
+                      const SizedBox(height:10),
+                      const Text("Carbs", style:TextStyle(fontSize:16))
+                    ]
+                  ),
+                ])
               ),
               FitCard(
                 title: 'Steps',
