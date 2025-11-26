@@ -9,6 +9,7 @@ import 'entryforms.dart';
 import 'notification.dart';
 import 'log.dart';
 import 'graphing.dart';
+import 'food_search.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -206,7 +207,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
     const FitTrackPage(
       title: 'Food',
       icon: Icons.restaurant_menu_rounded,
-      content: Center(child: Text('Food Log')),
+      content: const FoodSearchPage(uid: 1),
     ),
     const FitTrackPage(
       title: 'Train',

@@ -70,12 +70,11 @@ String _fmtTime(TimeOfDay t) =>
 /// Shows the Add Meal dialog, then inserts into:
 /// 1) foodData (name + macros), 2) foodRecords (link to data + uid/date/servings).
 /// Returns the new foodRecords.frid, or null if cancelled.
-Future<int?> addMealViaDialog(BuildContext context, {required int uid}) async {
-  final meal = await showMealEntryDialog(context);
-  if (meal == null) return null; // user cancelled
+Future<int?> addMealViaDialog(BuildContext context, {required int uid, MealEntry? initial}) async {
+  final meal = await showMealEntryDialog(context, initial: initial);
+  if (meal == null) return null;
 
   final db = DBModel.db;
-
   return await db.insertFoodRecord({
     'uid': uid,
     'fid': await db.insertFoodData({
@@ -83,10 +82,10 @@ Future<int?> addMealViaDialog(BuildContext context, {required int uid}) async {
       'calories': meal.calories,
       'protein': meal.protein,
       'fat': meal.fat,
-      'carbohydrates': meal.carbs
+      'carbohydrates': meal.carbs,
     }),
     'date': _fmtDate(meal.date),
-    'servings': meal.servings
+    'servings': meal.servings,
   });
 }
 
@@ -114,21 +113,28 @@ Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid}) async
 }
 
 /// Dialog forms for meals and workouts that return their respective classes
-Future<MealEntry?> showMealEntryDialog(BuildContext context) {
+Future<MealEntry?> showMealEntryDialog(
+    BuildContext context, {
+      MealEntry? initial,
+    }) {
   // Controllers hold temporary field values while the dialog is open.
-  final name = TextEditingController();
-  final calories = TextEditingController();
-  final protein = TextEditingController();
-  final carbs = TextEditingController();
-  final fat = TextEditingController();
-  final servings = TextEditingController(text: '1');
-  DateTime date = DateTime.now();
+  final name = TextEditingController(text: initial?.name ?? '');
+  final calories =
+  TextEditingController(text: initial?.calories.toString() ?? '');
+  final protein =
+  TextEditingController(text: initial?.protein.toString() ?? '');
+  final carbs =
+  TextEditingController(text: initial?.carbs.toString() ?? '');
+  final fat =
+  TextEditingController(text: initial?.fat.toString() ?? '');
+  final servings =
+  TextEditingController(text: initial?.servings.toString() ?? '1');
+  DateTime date = initial?.date ?? DateTime.now();
 
   return showDialog<MealEntry>(
     context: context,
     builder: (_) => _FormDialog<MealEntry>(
-      title: 'Add Meal', // Title area of the AlertDialog
-      // Build the field list for this form.
+      title: 'Add Meal',
       fields: (theme) => [
         _TextField(label: 'Name', controller: name),
         _NumberField(label: 'Calories', controller: calories),
@@ -146,7 +152,6 @@ Future<MealEntry?> showMealEntryDialog(BuildContext context) {
           onChanged: (d) => date = d,
         ),
       ],
-      // How to create the final result if validation passes.
       collectResult: () => MealEntry(
         name: name.text.trim(),
         calories: int.parse(calories.text),
