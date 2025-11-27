@@ -12,6 +12,7 @@ import 'graphing.dart';
 import 'food_search.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'settings_menu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // prepare engine before async init [web:244][web:223]
@@ -19,6 +20,12 @@ void main() async {
   // await db.clearDB();
   await db.initDatabase();
   // await db.insertMockData();
+
+  // Generating default user with default limit values
+  if (await db.getUserDataById(1) == null) {
+    db.insertUser({'dailyCalorieLimit':2000, 'dailyProteinLimit':60, 'dailyFatLimit':72, 'dailyCarbsLimit':275});
+  }
+
   runApp(const FitTrackApp());
 
 
@@ -85,15 +92,28 @@ class _FitTrackShellState extends State<FitTrackShell> {
     updateDailyCalories();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    updateDailyCalories();
+  }
+
   Future<void> updateDailyCalories() async {
     DBModel db = DBModel.db;
     DateTime date = DateTime.now();
     List<double> updatedDailyInfo = await db.getDayFoodRecordByUid(-1,'${date.year.toString().padLeft(4, '0')}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}');
+    Map<String,dynamic>? userDailyLimits = await db.getUserDataById(1); // This is just hardcoded for one user atm
     setState(() {
       dailyCalories = updatedDailyInfo[0];
       dailyProtein = updatedDailyInfo[1];
       dailyFat = updatedDailyInfo[2];
       dailyCarbs = updatedDailyInfo[3];
+      if (userDailyLimits != null) {
+        dailyCalorieLimit = userDailyLimits['dailyCalorieLimit'];
+        dailyProteinLimit = userDailyLimits['dailyProteinLimit'];
+        dailyFatLimit = userDailyLimits['dailyFatLimit'];
+        dailyCarbsLimit = userDailyLimits['dailyCarbsLimit'];
+      }
     });
   }
 
@@ -195,14 +215,14 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   ),
                 ])
               ),
-              FitCard(
-                title: 'Steps',
-                icon: Icons.directions_walk_rounded,
-                content: StepGraph(height: 60),
-              ),
+              // FitCard(
+              //   title: 'Steps',
+              //   icon: Icons.directions_walk_rounded,
+              //   content: StepGraph(height: 60),
+              // ),
             ],
           ),
-        )
+        ),
     ),
     const FitTrackPage(
       title: 'Food',
@@ -219,11 +239,20 @@ class _FitTrackShellState extends State<FitTrackShell> {
       icon: Icons.book,
       content: LogList(key: logKey),
     ),
+    FitTrackPage(
+      title: 'Settings',
+      icon: Icons.settings,
+      content: SettingsMenu(
+        calorieValue:dailyCalorieLimit.toString(),
+        proteinValue:dailyProteinLimit.toString(),
+        fatValue:dailyFatLimit.toString(),
+        carbsValue:dailyCarbsLimit.toString())
+    )
   ];
 
   @override
   Widget build(BuildContext context) {
-    final pages = _buildPages(context);
+    List<FitTrackPage> pages = _buildPages(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(pages[_index].title)),
@@ -234,7 +263,10 @@ class _FitTrackShellState extends State<FitTrackShell> {
       bottomNavigationBar: AppTaskbar(
         pages: _buildPages(context),
         currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
+        onTap: (i) => setState(() {
+          _index = i;
+          updateDailyCalories();
+        }),
       ),
     );
   }

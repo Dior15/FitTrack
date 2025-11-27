@@ -18,7 +18,7 @@ class DBModel {
         version: 1,
         onCreate: (db, version) async {
           await db.execute(
-            'CREATE TABLE users(uid INTEGER PRIMARY KEY AUTOINCREMENT)');
+            'CREATE TABLE users(uid INTEGER PRIMARY KEY AUTOINCREMENT, dailyCalorieLimit DOUBLE, dailyProteinLimit DOUBLE, dailyFatLimit DOUBLE, dailyCarbsLimit DOUBLE)');
           await db.execute(
             'CREATE TABLE foodData(fid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, calories INTEGER,protein INTEGER, fat INTEGER, carbohydrates INTEGER)');
           await db.execute(
@@ -30,6 +30,49 @@ class DBModel {
         }
       );
       _dbInitialized = true;
+    }
+  }
+
+  /// Insert a dictionary that contains info about a NEW user, no uid
+  Future<void> insertUser(Map<String, dynamic> user) async {
+    await database.insert(
+      'users',
+      {
+        'dailyCalorieLimit':user['dailyCalorieLimit'],
+        'dailyProteinLimit':user['dailyProteinLimit'],
+        'dailyFatLimit':user['dailyFatLimit'],
+        'dailyCarbsLimit':user['dailyCarbsLimit']
+      }
+    );
+  }
+
+  /// Input dictionary of EXISTING user with UPDATED values
+  Future<void> updateUser(Map<String,dynamic> user) async {
+    await database.update(
+      'users',
+      {
+        'uid':user['uid'],
+        'dailyCalorieLimit':user['dailyCalorieLimit'],
+        'dailyProteinLimit':user['dailyProteinLimit'],
+        'dailyFatLimit':user['dailyFatLimit'],
+        'dailyCarbsLimit':user['dailyCarbsLimit']
+      },
+      where:'uid = ?',
+      whereArgs:[user['uid']]
+    );
+  }
+
+  /// Input EXISTING uid, receive map of corresponding table row
+  Future<Map<String,dynamic>?> getUserDataById(int uid) async {
+    List<Map<String,dynamic>> r = await database.query(
+      'users',
+      where:'uid = ?',
+      whereArgs:[uid]
+    );
+    if (r.isNotEmpty) {
+      return(r.first);
+    } else {
+      return(null);
     }
   }
 
