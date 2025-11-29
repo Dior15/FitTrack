@@ -50,8 +50,9 @@ class OffProduct {
 /// Search + result list for the Food tab.
 class FoodSearchPage extends StatefulWidget {
   final int uid; // current user id for DB inserts
+  final VoidCallback? onEntryAdded;
 
-  const FoodSearchPage({super.key, required this.uid});
+  const FoodSearchPage({super.key, required this.uid, this.onEntryAdded});
 
   @override
   State<FoodSearchPage> createState() => _FoodSearchPageState();
@@ -62,50 +63,6 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
   bool _loading = false;
   String? _error;
   List<OffProduct> _results = [];
-
-  // Future<void> _search() async {
-  //   final q = _queryController.text.trim();
-  //   if (q.isEmpty) return;
-  //
-  //   setState(() {
-  //     _loading = true;
-  //     _error = null;
-  //   });
-  //
-  //   try {
-  //     // v2 search endpoint; limit fields + results for speed.
-  //     final uri = Uri.https(
-  //       'world.openfoodfacts.org',
-  //       '/api/v2/search',
-  //       {
-  //         'search_terms': q,
-  //         'page_size': '20',
-  //         'fields': 'product_name,brands,nutriments',
-  //       },
-  //     );
-  //     final resp = await http.get(uri);
-  //
-  //     if (resp.statusCode != 200) {
-  //       throw Exception('HTTP ${resp.statusCode}');
-  //     }
-  //
-  //     final data = jsonDecode(resp.body) as Map<String, dynamic>;
-  //     final products = (data['products'] as List? ?? [])
-  //         .map((p) => OffProduct.fromJson(p as Map<String, dynamic>))
-  //         .where((p) => p.name.isNotEmpty && p.hasAnyMacros)
-  //         .toList();
-  //
-  //     setState(() {
-  //       _results = products;
-  //     });
-  //   } catch (e) {
-  //     setState(() => _error = e.toString());
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() => _loading = false);
-  //     }
-  //   }
-  // }
 
   Future<void> _search() async {
     final q = _queryController.text.trim();
@@ -174,6 +131,7 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
       initial: meal,
     );
     if (frid != null && mounted) {
+      widget.onEntryAdded?.call();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Added "${meal.name}" to log')),
       );

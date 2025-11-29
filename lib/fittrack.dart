@@ -84,7 +84,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
   double dailyCarbsLimit = 50;
   double dailyFat = 0;
   double dailyFatLimit = 50;
-  final logKey = GlobalKey<LogListState>();
+  final GlobalKey<LogListState> logKey = GlobalKey<LogListState>();
 
   @override
   void initState() {
@@ -157,9 +157,8 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   onPressed: () async {
                     final frid = await addMealViaDialog(context, uid: 1); // supply current user id
                     if (frid != null) {
-                      // trigger any local refresh/state update if needed
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meal saved')));
-                      // logKey.currentState?.reload();
+                      logKey.currentState?.reload();
                     }
                     updateDailyCalories();
                   },
@@ -173,7 +172,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                       final erid = await addWorkoutViaDialog(context, uid: 1);
                       if (erid != null) {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout saved')));
-                        // logKey.currentState?.reload();
+                        logKey.currentState?.reload();
                       }
                     },
                     child: const Text('Add Workout'),
@@ -224,10 +223,16 @@ class _FitTrackShellState extends State<FitTrackShell> {
           ),
         ),
     ),
-    const FitTrackPage(
+    FitTrackPage(
       title: 'Food',
       icon: Icons.restaurant_menu_rounded,
-      content: const FoodSearchPage(uid: 1),
+      content:  FoodSearchPage(
+        uid: 1,
+        onEntryAdded: () {
+          updateDailyCalories();
+          logKey.currentState?.reload();
+        },
+      ),
     ),
     const FitTrackPage(
       title: 'Train',

@@ -4,12 +4,11 @@ import 'db_model.dart';
 
 /// LogList shows all user-entered meals and workouts
 class LogList extends StatefulWidget {
-  /// Optional user filter; pass null to show all users' records (useful for testing).
   final int? uid;
   const LogList({super.key, this.uid});
 
   @override
-  State<LogList> createState() => LogListState();
+  LogListState createState() => LogListState();
 }
 
 class LogListState extends State<LogList> {
