@@ -101,7 +101,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
   Future<void> updateDailyCalories() async {
     DBModel db = DBModel.db;
     DateTime date = DateTime.now();
-    List<double> updatedDailyInfo = await db.getDayFoodRecordByUid(-1,'${date.year.toString().padLeft(4, '0')}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}');
+    List updatedDailyInfo = await db.getDayFoodRecordByUid(-1, date);
     Map<String,dynamic>? userDailyLimits = await db.getUserDataById(1); // This is just hardcoded for one user atm
     setState(() {
       dailyCalories = updatedDailyInfo[0];

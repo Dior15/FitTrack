@@ -22,7 +22,7 @@ class DBModel {
           await db.execute(
             'CREATE TABLE foodData(fid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, calories INTEGER,protein INTEGER, fat INTEGER, carbohydrates INTEGER)');
           await db.execute(
-            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date DATE, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
+            'CREATE TABLE foodRecords(frid INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, fid INTEGER, date DATE, time TEXT, servings INTEGER, FOREIGN KEY (uid) REFERENCES users(uid), FOREIGN KEY (fid) REFERENCES foodData(fid))');
           await db.execute(
             'CREATE TABLE exerciseData(eid INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, muscle TEXT, sets INTEGER, reps INTEGER, weight INTEGER)');
           await db.execute(
@@ -137,12 +137,27 @@ class DBModel {
 
   /// foodRecord should be a map containing all the attributes {int uid, int fid, String date, int servings}
   Future<int> insertFoodRecord(Map<String, dynamic> foodRecord) async {
+    // CHANGED: centralize conversion from DateTime/String to DB strings
+    final dt = _ensureDateTime(foodRecord['date']);
+    final dynamic rawTime = foodRecord['time'];
+
+    // If caller supplies a separate time, respect it; otherwise use dt's time.
+    late final DateTime timeSource;
+    if (rawTime is DateTime) {
+      timeSource = rawTime;
+    } else if (rawTime is String) {
+      timeSource = _ensureDateTime(rawTime);
+    } else {
+      timeSource = dt;
+    }
+
     return await database.insert(
       'foodRecords',
       {
         'uid':foodRecord['uid'],
         'fid':foodRecord['fid'],
-        'date':foodRecord['date'],
+        'date': _dateToDb(dt),
+        'time': _timeToDb(timeSource),
         'servings':foodRecord['servings']
       }
     );
@@ -203,20 +218,21 @@ class DBModel {
 
   Future<List<double>> getDayFoodRecordByUid(int uid, dynamic date) async {
     List<Map<String, dynamic>> records;
+    final dateStr = _dateToDb(date);
     // First get relevant records
     if (uid != -1) {
       records = await database.query(
         'foodRecords',
         columns:['uid','fid','date'],
         where:'date = ? AND uid = ?',
-        whereArgs:[date, uid]
+        whereArgs:[dateStr, uid]
       );
     } else {
       records = await database.query(
         'foodRecords',
         columns:['fid','date'],
         where:'date = ?',
-        whereArgs:[date]
+        whereArgs:[dateStr]
       );
     }
 
@@ -296,13 +312,16 @@ class DBModel {
 
   /// exerciseRecord should be a map containing all the attributes {int uid, int eid, String date, String time}
   Future<int> insertExerciseRecord(Map<String, dynamic> exerciseRecord) async {
+    // CHANGED: only require a single DateTime, derive both date+time
+    final dt = _ensureDateTime(exerciseRecord['date']);
+
     return await database.insert(
         'exerciseRecords',
         {
           'uid':exerciseRecord['uid'],
           'eid':exerciseRecord['eid'],
-          'date':exerciseRecord['date'],
-          'time':exerciseRecord['time']
+          'date':_dateToDb(dt),
+          'time':_timeToDb(dt),
         }
     );
   }
@@ -360,6 +379,19 @@ class DBModel {
     );
   }
 
+  String _dateToDb(DateTime dt) => '${dt.year.toString().padLeft(4, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.day.toString().padLeft(2, '0')}';
+
+  String _timeToDb(DateTime dt) => '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+
+  DateTime _ensureDateTime(dynamic v) {
+    if (v is DateTime) return v;
+    if (v is String) {
+      final isoish = v.replaceAll('/', '-');
+      return DateTime.tryParse(isoish) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
+
 
   // ===== FOR TESTING =====
   /// DELETES ALL DATA IN THE DATABASE
@@ -373,16 +405,17 @@ class DBModel {
     insertFoodData({'name':'Taco', 'calories':550, 'protein':30, 'fat':5, 'carbohydrates':5});
     insertFoodData({'name':'French Fries', 'calories':450, 'protein':0, 'fat':10, 'carbohydrates':40});
 
-    insertFoodRecord({'uid':1, 'fid':1, 'date':'2025/11/09', 'servings':1});
-    insertFoodRecord({'uid':1, 'fid':2, 'date':'${DateTime.now().year.toString().padLeft(4, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().day.toString().padLeft(2, '0')}', 'servings':1});
-    insertFoodRecord({'uid':2, 'fid':3, 'date':'${DateTime.now().year.toString().padLeft(4, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().day.toString().padLeft(2, '0')}', 'servings':1});
+    insertFoodRecord({'uid':1, 'fid':1, 'date':DateTime(2025, 11, 9, 12, 0), 'servings':1});
+    final now = DateTime.now();
+    insertFoodRecord({'uid':1, 'fid':2, 'date':DateTime(now.year, now.month, now.day, 8, 30), 'servings':1});
+    insertFoodRecord({'uid':2, 'fid':3, 'date':DateTime(now.year, now.month, now.day, 19, 0), 'servings':1});
 
     insertExerciseData({'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':20});
     insertExerciseData({'name':'Weighted Squats', 'muscle':'Leg', 'sets':3, 'reps':12, 'weight':30});
     insertExerciseData({'name':'Lateral Raise', 'muscle':'Deltoid', 'sets':3, 'reps':12, 'weight':15});
 
-    insertExerciseRecord({'uid':1, 'eid':1, 'date':'2025/11/07', 'time':'1:00'});
-    insertExerciseRecord({'uid':2, 'eid':2, 'date':'2025/11/08', 'time':'2:00'});
-    insertExerciseRecord({'uid':2, 'eid':3, 'date':'2025/11/09', 'time':'2:30'});
+    insertExerciseRecord({'uid':1, 'eid':1, 'date':DateTime(2025, 11, 7, 13, 0)});
+    insertExerciseRecord({'uid':2, 'eid':2, 'date':DateTime(2025, 11, 8, 14, 0)});
+    insertExerciseRecord({'uid':2, 'eid':3, 'date':DateTime(2025, 11, 9, 14, 30)});
   }
 }

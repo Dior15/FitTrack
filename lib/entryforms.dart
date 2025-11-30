@@ -9,7 +9,7 @@ class MealEntry {
   final int carbs;
   final int fat;
   final int servings;
-  final DateTime date;
+  final DateTime dateTime;
 
   const MealEntry({
     required this.name,
@@ -18,7 +18,7 @@ class MealEntry {
     required this.carbs,
     required this.fat,
     required this.servings,
-    required this.date,
+    required this.dateTime,
   });
 
   // Map<String, dynamic> toMap() => {
@@ -59,14 +59,6 @@ class WorkoutEntry {
   // };
 }
 
-/// Format as 'YYYY/MM/DD' to match db.
-String _fmtDate(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}/${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
-
-/// Format as 'HH:mm' 24h for exerciseRecords.time
-String _fmtTime(TimeOfDay t) =>
-    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
 /// Shows the Add Meal dialog, then inserts into:
 /// 1) foodData (name + macros), 2) foodRecords (link to data + uid/date/servings).
 /// Returns the new foodRecords.frid, or null if cancelled.
@@ -84,7 +76,7 @@ Future<int?> addMealViaDialog(BuildContext context, {required int uid, MealEntry
       'fat': meal.fat,
       'carbohydrates': meal.carbs,
     }),
-    'date': _fmtDate(meal.date),
+    'date': meal.dateTime,
     'servings': meal.servings,
   });
 }
@@ -107,8 +99,7 @@ Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid}) async
       'reps': workout.reps,
       'weight': workout.weight,
     }),
-    'date': _fmtDate(workout.dateTime),
-    'time': _fmtTime(TimeOfDay.fromDateTime(workout.dateTime))
+    'date': workout.dateTime,
   });
 }
 
@@ -129,7 +120,8 @@ Future<MealEntry?> showMealEntryDialog(
   TextEditingController(text: initial?.fat.toString() ?? '');
   final servings =
   TextEditingController(text: initial?.servings.toString() ?? '1');
-  DateTime date = initial?.date ?? DateTime.now();
+  DateTime date = initial?.dateTime ?? DateTime.now();
+  TimeOfDay time = initial != null ? TimeOfDay.fromDateTime(initial.dateTime) : TimeOfDay.now();
 
   return showDialog<MealEntry>(
     context: context,
@@ -151,16 +143,30 @@ Future<MealEntry?> showMealEntryDialog(
           initial: date,
           onChanged: (d) => date = d,
         ),
+        _TimePickerField(
+          label: 'Time',
+          initial: time,
+          onChanged: (t) => time = t,
+        ),
       ],
-      collectResult: () => MealEntry(
-        name: name.text.trim(),
-        calories: int.parse(calories.text),
-        protein: int.parse(protein.text),
-        carbs: int.parse(carbs.text),
-        fat: int.parse(fat.text),
-        servings: int.parse(servings.text),
-        date: date,
-      ),
+      collectResult: () {
+        final dt = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
+        return MealEntry(
+          name: name.text.trim(),
+          calories: int.parse(calories.text),
+          protein: int.parse(protein.text),
+          carbs: int.parse(carbs.text),
+          fat: int.parse(fat.text),
+          servings: int.parse(servings.text),
+          dateTime: dt,
+        );
+      },
     ),
   );
 }

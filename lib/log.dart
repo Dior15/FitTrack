@@ -54,9 +54,11 @@ class LogListState extends State<LogList> {
     final out = <_UnifiedEntry>[];
 
     for (final r in foodRecs) {
-      final date = _parseDate(r['date'] as String); // meals have date only
+      final date = _parseDate(r['date'] as String);
+      final timeStr = (r['time'] as String?) ?? '00:00';
+      final at = _combine(date, timeStr);
       out.add(_UnifiedEntry.meal(
-        at: date,
+        at: at,
         record: r,
         data: foodById[r['fid'] as int],
       ));
@@ -163,11 +165,10 @@ class _LogTile extends StatelessWidget {
       final f = d['fat'];
 
       final stats = [
-        if (cal != null) 'Cal: $cal',
-        if (p != null) 'Protein: $p g',
-        if (c != null) 'Carbs: $c g',
-        if (f != null) 'Fat: $f g',
-        'Serv: $servings',
+        if (cal != null) 'Cal $cal',
+        if (p != null) 'P $p g',
+        if (c != null) 'C $c g',
+        if (f != null) 'F $f g',
       ].join(' • ');
 
       // Expandable logs

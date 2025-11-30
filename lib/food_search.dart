@@ -121,7 +121,7 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
       carbs: (p.carbsPerServing ?? 0).round(),
       fat: (p.fatPerServing ?? 0).round(),
       servings: 1,
-      date: DateTime.now(),
+      dateTime: DateTime.now(),
     );
 
     // Open your existing dialog with fields prefilled, then save to DB.
