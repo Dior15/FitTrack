@@ -31,6 +31,34 @@ class LogListState extends State<LogList> {
     await next;
   }
 
+  // Helper method to delete entries from the log & remove from db
+  Future<void> _deleteEntry(BuildContext context, _UnifiedEntry entry) async {
+
+    String name;
+    if (entry.type == _EntryType.meal) {
+      name = (entry.data?['name'] as String?) ?? 'Meal';
+      await db.deleteFoodRecordById(entry.record['frid'] as int);
+    } else {
+      name = (entry.data?['name'] as String?) ?? 'Workout';
+      await db.deleteExerciseRecordById(entry.record['erid'] as int);
+    }
+
+    // Instantly removes without needed to exit & reenter page
+    setState(() {
+      _future = _future.then((items) {
+        final next = List<_UnifiedEntry>.from(items);
+        next.remove(entry);
+        return next;
+      });
+    });
+
+    // Snackbar for confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$name deleted!"))
+    );
+
+  }
+
   // Fetch records + reference data, then join and sort by timestamp descending.
   Future<List<_UnifiedEntry>> _loadFeed() async {
     await DBModel.db.initDatabase();
@@ -100,7 +128,11 @@ class LogListState extends State<LogList> {
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(), // pull even at top/short lists
             itemCount: items.length,
-            itemBuilder: (context, i) => _LogTile(entry: items[i]),
+            itemBuilder: (context, i) {
+              final entry = items[i];
+              return _LogTile(entry: entry, onDelete: () => _deleteEntry(context, entry));
+            },
+
           ),
         );
       },
@@ -134,7 +166,8 @@ class _UnifiedEntry {
 /// Renders one row with icon, name, quick stats, and timestamp. [ListTile + ListView]
 class _LogTile extends StatelessWidget {
   final _UnifiedEntry entry;
-  const _LogTile({required this.entry});
+  final VoidCallback onDelete;
+  const _LogTile({required this.entry, required this.onDelete});
 
   // Helper method to create a food stat for the food ExpansionTile
   Widget _expandedLog (String val) {
@@ -178,6 +211,11 @@ class _LogTile extends StatelessWidget {
         leading: const CircleAvatar(child: Icon(Icons.restaurant_menu_rounded)),
         title: Text(name),
         subtitle: Text('$stats • $date'),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: onDelete,
+        ),
+
 
         //Expanded content
         children: [
@@ -234,6 +272,10 @@ class _LogTile extends StatelessWidget {
         leading: const CircleAvatar(child: Icon(Icons.fitness_center_rounded)),
         title: Text(name),
         subtitle: Text('$stats • $date'),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: onDelete,
+        ),
 
         //Expanded content
         children: [
