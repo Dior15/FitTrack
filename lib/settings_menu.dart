@@ -157,9 +157,11 @@ class SettingsMenuState extends State<SettingsMenu> {
 
             // Theme dropdown menu
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Text("App Theme", style: TextStyle(fontSize: 18)),
+                SizedBox(width:47),
+                const Text("App Theme:", style:TextStyle(fontSize:20)),
+                SizedBox(width:10),
                 DropdownButton<String>(
                   value: widget.currentThemeMode,
                   items: const [
