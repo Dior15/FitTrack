@@ -30,6 +30,7 @@ class DBModel {
         }
       );
       _dbInitialized = true;
+      await initWorkoutData();
     }
   }
 
@@ -390,6 +391,23 @@ class DBModel {
       return DateTime.tryParse(isoish) ?? DateTime.now();
     }
     return DateTime.now();
+  }
+
+  /// Populates the workout table if empty
+  Future<void> initWorkoutData() async {
+    List exercises = await getAllExerciseData();
+    if (exercises.isEmpty) {
+      insertExerciseData({'name':'Push Ups', 'muscle':'Pecs', 'sets':2, 'reps':20, 'weight':0});
+      insertExerciseData({'name':'Box Dips', 'muscle':'Pecs', 'sets':3, 'reps':10, 'weight':0});
+      insertExerciseData({'name':'Dumbbell Front Raise', 'muscle':'Anterior Deltoid', 'sets':4, 'reps':10, 'weight':10});
+      insertExerciseData({'name':'Machine Overhand Overhead Press', 'muscle':'Anterior Deltoid', 'sets':5, 'reps':8, 'weight':20});
+      insertExerciseData({'name':'Kettlebell Shrug', 'muscle':'Trapezius', 'sets':3, 'reps':10, 'weight':10});
+      insertExerciseData({'name':'Band Curl', 'muscle':'Biceps', 'sets':4, 'reps':15, 'weight':2});
+      insertExerciseData({'name':'Dumbbell Wrist Curl', 'muscle':'Forearm', 'sets':8, 'reps':5, 'weight':10});
+      insertExerciseData({'name':'Elbow Side Plank', 'muscle':'Obliques', 'sets':6, 'reps':5, 'weight':0});
+      insertExerciseData({'name':'Crunches', 'muscle':'Abs', 'sets':3, 'reps':20, 'weight':0});
+      insertExerciseData({'name':'Forward Lunge', 'muscle':'Glute', 'sets':4, 'reps':10, 'weight':0});
+    }
   }
 
 

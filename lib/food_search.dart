@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'entryforms.dart';
+import 'db_model.dart';
 
 /// Simple product model built from Open Food Facts search results.
 class OffProduct {
@@ -45,6 +46,20 @@ class OffProduct {
       fatPerServing: _num(nutriments['fat_serving']),
     );
   }
+
+  /// Modified version of fromJson that operates on food data already in db format
+  factory OffProduct.fromLog(Map<String, dynamic>? log, String servings) {
+
+    return OffProduct(
+      name: log?['name'] ?? '',
+      brand: null,
+      servingSize: servings,
+      caloriesPerServing: log?['calories'].toDouble(),
+      proteinPerServing: log?['protein'].toDouble(),
+      carbsPerServing: log?['carbohydrates'].toDouble(),
+      fatPerServing: log?['fat'].toDouble()
+    );
+  }
 }
 
 /// Search + result list for the Food tab.
@@ -63,6 +78,31 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
   bool _loading = false;
   String? _error;
   List<OffProduct> _results = [];
+  DBModel db = DBModel.db;
+  List<Map<String, dynamic>> _logFoods = [];
+
+  _FoodSearchPageState() {
+    addFoods();
+  }
+
+  /// Fills results from existing food log (initially, before items are searched)
+  Future<void> addFoods() async {
+    _logFoods = await db.getFoodRecordsByUid(1);
+
+    List<OffProduct> recordFoods = [];
+
+    for (int i=0; i<_logFoods.length; i++) {
+      recordFoods.add(OffProduct.fromLog(await db.getFoodDataById(_logFoods[i]['fid'] as int), _logFoods[i]['servings'].toString()));
+    }
+
+    recordFoods = (recordFoods)
+        .where((p) => p.name.isNotEmpty && p.hasAnyMacros)
+        .toList();
+
+    setState(() {
+      _results = recordFoods;
+    });
+  }
 
   Future<void> _search() async {
     final q = _queryController.text.trim();
