@@ -23,61 +23,91 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        TextField(
-          controller: _queryController,
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            labelText: 'Search exercises',
-            prefixIcon: const Icon(Icons.search_outlined),
-            border: const OutlineInputBorder()
-          ),
-          onSubmitted: (_) => _search(),
-        ),
-        const SizedBox(height: 12),
-        if (_loading) const LinearProgressIndicator(),
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text('Error: $_error', style: const TextStyle(color: Colors.red))
-          ),
-        Expanded(
-          child: _results.isEmpty && !_loading
-              ? const Center(child: Text('Search for an exercise to see results'))
-              : ListView.builder(
-            itemCount: _results.length,
-            itemBuilder: (context, index) {
-              final ex = _results[index];
-              final subtitleParts = <String>[];
-              if (ex["muscle"] != null) {
-                subtitleParts.add(ex["muscle"]);
-              }
-              if (ex["sets"] != null) {
-                subtitleParts.add("${ex["sets"]} sets");
-              }
-              if (ex["reps"] != null) {
-                subtitleParts.add("${ex["reps"]} reps");
-              }
-              if (ex["weight"] != null) {
-                subtitleParts.add("${ex["weight"]} kg");
-              }
+        Column(
+          children: [
+            TextField(
+              controller: _queryController,
+              textInputAction: TextInputAction.search,
+              decoration: const InputDecoration(
+                labelText: 'Search exercises',
+                prefixIcon: Icon(Icons.search_outlined),
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _search(),
+            ),
+            const SizedBox(height: 12),
+            if (_loading) const LinearProgressIndicator(),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Error: $_error',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            Expanded(
+              child: _results.isEmpty && !_loading
+                  ? const Center(
+                child:
+                Text('Search for an exercise to see results'),
+              )
+                  : ListView.builder(
+                itemCount: _results.length,
+                itemBuilder: (context, index) {
+                  final ex = _results[index];
+                  final subtitleParts = <String>[];
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  onTap: () => _onExerciseTap(ex),
-                  title: Text(ex['name']),
-                  subtitle: Text(subtitleParts.join(' - ')),
-                  trailing: const Icon(Icons.add_circle)
-                )
-              );
-            }
-          )
-        )
-      ]
+                  if (ex['muscle'] != null) {
+                    subtitleParts.add(ex['muscle']);
+                  }
+                  if (ex['sets'] != null) {
+                    subtitleParts.add('${ex["sets"]} sets');
+                  }
+                  if (ex['reps'] != null) {
+                    subtitleParts.add('${ex["reps"]} reps');
+                  }
+                  if (ex['weight'] != null) {
+                    subtitleParts.add('${ex["weight"]} kg');
+                  }
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      onTap: () => _onExerciseTap(ex),
+                      title: Text(ex['name']),
+                      subtitle: Text(subtitleParts.join(' - ')),
+                      trailing: const Icon(Icons.add_circle),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+
+        // FAB to manually add a workout
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: () async {
+              final erid = await addWorkoutViaDialog(context, uid: widget.uid);
+              if (erid != null && mounted) {
+                widget.onEntryAdded?.call();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Workout saved')),
+                );
+              }
+            },
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
     );
   }
+
 
   Future<void> _search() async {
     final q = _queryController.text.trim();

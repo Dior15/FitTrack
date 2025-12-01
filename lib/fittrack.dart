@@ -17,7 +17,7 @@ import 'settings_menu.dart';
 import 'theme.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // prepare engine before async init [web:244][web:223]
+  WidgetsFlutterBinding.ensureInitialized();
   DBModel db = DBModel.db;
   // await db.clearDB();
   await db.initDatabase();

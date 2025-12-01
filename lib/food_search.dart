@@ -180,57 +180,93 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        TextField(
-          controller: _queryController,
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            labelText: 'Search foods',
-            prefixIcon: const Icon(Icons.search),
-            border: const OutlineInputBorder(),
-          ),
-          onSubmitted: (_) => _search(),
-        ),
-        const SizedBox(height: 12),
-        if (_loading) const LinearProgressIndicator(),
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text('Error: $_error', style: const TextStyle(color: Colors.red)),
-          ),
-        Expanded(
-          child: _results.isEmpty && !_loading
-              ? const Center(child: Text('Search for a food to see results'))
-              : ListView.builder(
-            itemCount: _results.length,
-            itemBuilder: (context, index) {
-              final p = _results[index];
-              final subtitleParts = <String>[];
-              if (p.caloriesPerServing != null) {
-                final label = p.servingSize ?? 'serving';
-                subtitleParts.add('${p.caloriesPerServing!.round()} Cal / $label');
-              }
-              if (p.proteinPerServing != null) {
-                subtitleParts.add('P ${p.proteinPerServing!.round()} g');
-              }
-              if (p.carbsPerServing != null) {
-                subtitleParts.add('C ${p.carbsPerServing!.round()} g');
-              }
-              if (p.fatPerServing != null) {
-                subtitleParts.add('F ${p.fatPerServing!.round()} g');
-              }
-
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  onTap: () => _onProductTap(p),
-                  title: Text(p.name),
-                  subtitle: Text(subtitleParts.join(' • ')),
-                  trailing: const Icon(Icons.add),
+        Column(
+          children: [
+            TextField(
+              controller: _queryController,
+              textInputAction: TextInputAction.search,
+              decoration: const InputDecoration(
+                labelText: 'Search foods',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _search(),
+            ),
+            const SizedBox(height: 12),
+            if (_loading) const LinearProgressIndicator(),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Error: $_error',
+                  style: const TextStyle(color: Colors.red),
                 ),
-              );
+              ),
+            Expanded(
+              child: _results.isEmpty && !_loading
+                  ? const Center(
+                child: Text('Search for a food to see results'),
+              )
+                  : ListView.builder(
+                itemCount: _results.length,
+                itemBuilder: (context, index) {
+                  final p = _results[index];
+                  final subtitleParts = <String>[];
+
+                  if (p.caloriesPerServing != null) {
+                    final label = p.servingSize ?? 'serving';
+                    subtitleParts.add(
+                      '${p.caloriesPerServing!.round()} Cal / $label',
+                    );
+                  }
+                  if (p.proteinPerServing != null) {
+                    subtitleParts.add(
+                      'P ${p.proteinPerServing!.round()} g',
+                    );
+                  }
+                  if (p.carbsPerServing != null) {
+                    subtitleParts.add(
+                      'C ${p.carbsPerServing!.round()} g',
+                    );
+                  }
+                  if (p.fatPerServing != null) {
+                    subtitleParts.add(
+                      'F ${p.fatPerServing!.round()} g',
+                    );
+                  }
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      onTap: () => _onProductTap(p),
+                      title: Text(p.name),
+                      subtitle: Text(subtitleParts.join(' • ')),
+                      trailing: const Icon(Icons.add_circle),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+
+        // FAB to manually add a meal
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: () async {
+              final frid = await addMealViaDialog(context, uid: widget.uid);
+              if (frid != null && mounted) {
+                widget.onEntryAdded?.call();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Meal saved')),
+                );
+              }
             },
+            child: const Icon(Icons.add),
           ),
         ),
       ],
