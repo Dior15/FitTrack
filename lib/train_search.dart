@@ -63,7 +63,6 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
                 subtitleParts.add("${ex["weight"]} kg");
               }
 
-
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
@@ -90,7 +89,20 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
     });
 
     try {
-      _results = await db.getAllExerciseData();
+      List<Map<String, dynamic>> data = await db.getAllExerciseData();
+      _results = [];
+
+      if (q.toLowerCase() == "all") {
+        _results = data;
+      } else {
+        for (int i=0; i<data.length; i++) {
+
+          if (data[i]["name"].toLowerCase().contains(q) || data[i]["muscle"].toLowerCase().contains(q)) {
+            _results.add(data[i]);
+          }
+        }
+      }
+
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -124,5 +136,4 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
       );
     }
   }
-
 }
