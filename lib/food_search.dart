@@ -297,7 +297,9 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Meal saved')),
                 );
+                addFoods();
               }
+              setState(() {});
             },
             child: const Icon(Icons.add),
           ),
