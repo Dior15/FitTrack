@@ -13,6 +13,7 @@ import 'food_search.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'settings_menu.dart';
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // prepare engine before async init [web:244][web:223]
@@ -53,22 +54,58 @@ void main() async {
 
 }
 
-class FitTrackApp extends StatelessWidget {
+class FitTrackApp extends StatefulWidget {
   const FitTrackApp({super.key});
+
+  @override
+  State<FitTrackApp> createState() => _FitTrackAppState();
+}
+
+class _FitTrackAppState extends State<FitTrackApp> {
+
+  //Dynamic theme stuff
+  String _themeMode = "light";
+
+  void _setTheme(String mode) {setState(() {_themeMode = mode;});}
+  ThemeData _getTheme() {
+    switch (_themeMode) {
+      case "dark":
+        return dark;
+      case "matrix":
+        return matrix;
+      case "light":
+      default:
+        return light;
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FitTrack',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: const FitTrackShell(),
+      // theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
+      theme: _getTheme(),
+      home: FitTrackShell(
+        onThemeChanged: _setTheme,
+        currentThemeMode: _themeMode,
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class FitTrackShell extends StatefulWidget {
-  const FitTrackShell({super.key});
+
+  final Function(String) onThemeChanged;
+  final String currentThemeMode;
+
+  const FitTrackShell({
+    super.key,
+    required this.onThemeChanged,
+    required this.currentThemeMode,
+  });
 
   @override
   State<FitTrackShell> createState() => _FitTrackShellState();
@@ -251,7 +288,10 @@ class _FitTrackShellState extends State<FitTrackShell> {
         calorieValue:dailyCalorieLimit.toString(),
         proteinValue:dailyProteinLimit.toString(),
         fatValue:dailyFatLimit.toString(),
-        carbsValue:dailyCarbsLimit.toString())
+        carbsValue:dailyCarbsLimit.toString(),
+        onThemeChanged: widget.onThemeChanged,
+        currentThemeMode: widget.currentThemeMode
+      )
     )
   ];
 

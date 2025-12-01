@@ -6,8 +6,18 @@ class SettingsMenu extends StatefulWidget {
   final String proteinValue;
   final String fatValue;
   final String carbsValue;
+  final Function(String) onThemeChanged;
+  final String currentThemeMode;
 
-  const SettingsMenu({super.key,required this.calorieValue,required this.proteinValue,required this.fatValue,required this.carbsValue});
+  const SettingsMenu({
+    super.key,
+    required this.calorieValue,
+    required this.proteinValue,
+    required this.fatValue,
+    required this.carbsValue,
+    required this.onThemeChanged,
+    required this.currentThemeMode,
+  });
 
   @override
   State<SettingsMenu> createState() => SettingsMenuState();
@@ -123,6 +133,7 @@ class SettingsMenuState extends State<SettingsMenu> {
                 SizedBox(width:16)
               ]
             ),
+
             SizedBox(
               height:10
             ),
@@ -139,7 +150,30 @@ class SettingsMenuState extends State<SettingsMenu> {
                 });
               },
 
-            )
+            ),
+
+            const SizedBox(height: 20,),
+
+            // Theme dropdown menu
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("App Theme", style: TextStyle(fontSize: 18)),
+                DropdownButton<String>(
+                  value: widget.currentThemeMode,
+                  items: const [
+                    DropdownMenuItem(value: "light", child: Text("Light")),
+                    DropdownMenuItem(value: "dark", child: Text("Dark")),
+                    DropdownMenuItem(value: "matrix", child: Text("Matrix")),
+                  ],
+                  onChanged: (mode) {
+                    if (mode != null) {
+                      widget.onThemeChanged(mode);
+                    }
+                  },
+                ),
+              ],
+            ),
           ]
         )
       ),
