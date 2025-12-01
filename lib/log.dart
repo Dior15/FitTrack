@@ -166,7 +166,7 @@ class _UnifiedEntry {
 /// Renders one row with icon, name, quick stats, and timestamp. [ListTile + ListView]
 class _LogTile extends StatelessWidget {
   final _UnifiedEntry entry;
-  final VoidCallback onDelete;
+  final VoidCallback onDelete; // For deletion purposes
   const _LogTile({required this.entry, required this.onDelete});
 
   // Helper method to create a food stat for the food ExpansionTile
@@ -211,7 +211,7 @@ class _LogTile extends StatelessWidget {
         leading: const CircleAvatar(child: Icon(Icons.restaurant_menu_rounded)),
         title: Text(name),
         subtitle: Text('$stats • $date'),
-        trailing: IconButton(
+        trailing: IconButton( // Delete food logs
           icon: const Icon(Icons.delete, color: Colors.red),
           onPressed: onDelete,
         ),
@@ -272,7 +272,7 @@ class _LogTile extends StatelessWidget {
         leading: const CircleAvatar(child: Icon(Icons.fitness_center_rounded)),
         title: Text(name),
         subtitle: Text('$stats • $date'),
-        trailing: IconButton(
+        trailing: IconButton( // Delete exercise logs
           icon: const Icon(Icons.delete, color: Colors.red),
           onPressed: onDelete,
         ),
