@@ -21,6 +21,27 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
   List<Map<String, dynamic>> _results = [];
   DBModel db = DBModel.db;
 
+  // Load exercises that the user has actually logged,
+  // by joining exerciseRecords with exerciseData on eid.
+  Future<List<Map<String, dynamic>>> _loadLoggedExercises() async {
+    final records = await db.getExerciseRecordsByUid(widget.uid);
+    final data = await db.getAllExerciseData();
+
+    final Map<int, Map<String, dynamic>> byId = {};
+    for (final e in data) {
+      final id = e['eid'] as int?;
+      if (id != null) byId[id] = e;
+    }
+
+    final List<Map<String, dynamic>> out = [];
+    for (final r in records) {
+      final eid = r['eid'] as int?;
+      final d = eid == null ? null : byId[eid];
+      if (d != null) out.add(d);
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -49,11 +70,60 @@ class _TrainingSearchPageState extends State<TrainingSearchPage> {
               ),
             Expanded(
               child: _results.isEmpty && !_loading
-                  ? const Center(
-                child:
-                Text('Search for an exercise to see results'),
+              // When there are no search results, show logged workouts instead.
+                  ? FutureBuilder<List<Map<String, dynamic>>>(
+                future: _loadLoggedExercises(),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snap.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snap.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+                  final recs = snap.data ?? [];
+                  if (recs.isEmpty) {
+                    return const Center(child: Text('No logged workouts yet'));
+                  }
+
+                  // Use the SAME tile format as the normal search results.
+                  return ListView.builder(
+                    itemCount: recs.length,
+                    itemBuilder: (context, index) {
+                      final ex = recs[index];
+                      final subtitleParts = <String>[];
+
+                      if (ex['muscle'] != null) {
+                        subtitleParts.add(ex['muscle']);
+                      }
+                      if (ex['sets'] != null) {
+                        subtitleParts.add('${ex["sets"]} sets');
+                      }
+                      if (ex['reps'] != null) {
+                        subtitleParts.add('${ex["reps"]} reps');
+                      }
+                      if (ex['weight'] != null) {
+                        subtitleParts.add('${ex["weight"]} kg');
+                      }
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          onTap: () => _onExerciseTap(ex),
+                          title: Text(ex['name']),
+                          subtitle: Text(subtitleParts.join(' - ')),
+                          trailing: const Icon(Icons.add_circle),
+                        ),
+                      );
+                    },
+                  );
+                },
               )
-                  : ListView.builder(
+              : ListView.builder(
                 itemCount: _results.length,
                 itemBuilder: (context, index) {
                   final ex = _results[index];
