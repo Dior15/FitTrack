@@ -84,8 +84,8 @@ Future<int?> addMealViaDialog(BuildContext context, {required int uid, MealEntry
 /// Shows the Add Workout dialog, then inserts into:
 /// 1) exerciseData (exercise details), 2) exerciseRecords (link + uid/date/time).
 /// Returns the new exerciseRecords.erid, or null if cancelled.
-Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid}) async {
-  final workout = await showWorkoutEntryDialog(context); // existing dialog [web:64]
+Future<int?> addWorkoutViaDialog(BuildContext context, {required int uid, WorkoutEntry? initial}) async {
+  final workout = await showWorkoutEntryDialog(context, initial: initial); // existing dialog [web:64]
   if (workout == null) return null;
 
   final db = DBModel.db;
@@ -171,12 +171,12 @@ Future<MealEntry?> showMealEntryDialog(
   );
 }
 
-Future<WorkoutEntry?> showWorkoutEntryDialog(BuildContext context) {
-  final name = TextEditingController();
-  final sets = TextEditingController(text: '3');
-  final reps = TextEditingController(text: '10');
-  final weight = TextEditingController(text: '0');
-  final muscle = ValueNotifier<String>('Chest'); // Simple dropdown source
+Future<WorkoutEntry?> showWorkoutEntryDialog(BuildContext context, {WorkoutEntry? initial}) {
+  final name = TextEditingController(text: initial?.name ?? '');
+  final sets = TextEditingController(text: initial?.sets.toString() ?? '3');
+  final reps = TextEditingController(text: initial?.reps.toString() ?? '10');
+  final weight = TextEditingController(text: initial?.weight.toString() ?? '0');
+  final muscle = ValueNotifier<String>(initial?.muscleGroup ?? 'Chest'); // Simple dropdown source
   DateTime date = DateTime.now();
   TimeOfDay time = TimeOfDay.now();
 

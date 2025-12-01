@@ -1,4 +1,5 @@
 // lib/fittrack.dart
+import 'package:fittrack/train_search.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'page.dart';
@@ -271,10 +272,15 @@ class _FitTrackShellState extends State<FitTrackShell> {
         },
       ),
     ),
-    const FitTrackPage(
+    FitTrackPage(
       title: 'Train',
       icon: Icons.fitness_center_rounded,
-      content: Center(child: Text('Workouts')),
+      content: TrainingSearchPage(
+          uid: 1,
+        onEntryAdded: () {
+            logKey.currentState?.reload();
+        }
+      ),
     ),
     FitTrackPage(
       title: 'Log',
