@@ -15,6 +15,7 @@ class SettingsMenu extends StatefulWidget {
     required this.proteinValue,
     required this.fatValue,
     required this.carbsValue,
+    // Theme changing
     required this.onThemeChanged,
     required this.currentThemeMode,
   });

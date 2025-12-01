@@ -89,6 +89,7 @@ class _FitTrackAppState extends State<FitTrackApp> {
       // theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
       theme: _getTheme(),
       home: FitTrackShell(
+        // Theme allocation
         onThemeChanged: _setTheme,
         currentThemeMode: _themeMode,
       ),
@@ -104,6 +105,7 @@ class FitTrackShell extends StatefulWidget {
 
   const FitTrackShell({
     super.key,
+    // Theme changing
     required this.onThemeChanged,
     required this.currentThemeMode,
   });
@@ -169,14 +171,6 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   content: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Column(
-                      //   mainAxisSize: MainAxisSize.min, //shrink to fit
-                      //   children: [
-                      //     DayGraph(dimensions: Size(60,60),fillPercentage:0.75),
-                      //     const SizedBox(height:4),
-                      //     const Text("Weekly")
-                      //   ],
-                      // ),
                       Column(
                         mainAxisSize: MainAxisSize.min, //shrink to fit
                         children: [
@@ -252,11 +246,6 @@ class _FitTrackShellState extends State<FitTrackShell> {
                   ),
                 ])
               ),
-              // FitCard(
-              //   title: 'Steps',
-              //   icon: Icons.directions_walk_rounded,
-              //   content: StepGraph(height: 60),
-              // ),
             ],
           ),
         ),
@@ -295,6 +284,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
         proteinValue:dailyProteinLimit.toString(),
         fatValue:dailyFatLimit.toString(),
         carbsValue:dailyCarbsLimit.toString(),
+        // Theme changing
         onThemeChanged: widget.onThemeChanged,
         currentThemeMode: widget.currentThemeMode
       )
