@@ -206,9 +206,42 @@ class _FoodSearchPageState extends State<FoodSearchPage> {
               ),
             Expanded(
               child: _results.isEmpty && !_loading
-                  ? const Center(
-                child: Text('Search for a food to see results'),
-              )
+                ? FutureBuilder<List<Map<String, dynamic>>>(
+                  future: DBModel.db.getFoodRecordsByUid(widget.uid),
+                  builder: (context, snap) {
+                    if (snap.connectionState != ConnectionState.done) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snap.hasError) {
+                      return Center(
+                        child: Text('Error: ${snap.error}',
+                          style: const TextStyle(color: Colors.red)));
+                    }
+                    final recs = snap.data ?? [];
+                    if (recs.isEmpty) {
+                      return const Center(child: Text('No logged meals yet'));
+                    }
+                    return ListView.builder(
+                      itemCount: recs.length,
+                      itemBuilder: (context, index) {
+                        final r = recs[index];
+                        final name = (r['name'] ?? '').toString();
+                        final servings = r['servings'] ?? 1;
+                        final cal = r['calories'];
+                        final subtitle = cal == null
+                          ? 'Servings: $servings'
+                          : '$cal Cal • Servings: $servings';
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            title: Text(name),
+                            subtitle: Text(subtitle),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                )
                   : ListView.builder(
                 itemCount: _results.length,
                 itemBuilder: (context, index) {

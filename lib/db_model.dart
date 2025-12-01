@@ -426,14 +426,14 @@ class DBModel {
     insertFoodRecord({'uid':1, 'fid':1, 'date':DateTime(2025, 11, 9, 12, 0), 'servings':1});
     final now = DateTime.now();
     insertFoodRecord({'uid':1, 'fid':2, 'date':DateTime(now.year, now.month, now.day, 8, 30), 'servings':1});
-    insertFoodRecord({'uid':2, 'fid':3, 'date':DateTime(now.year, now.month, now.day, 19, 0), 'servings':1});
+    insertFoodRecord({'uid':1, 'fid':3, 'date':DateTime(now.year, now.month, now.day, 19, 0), 'servings':1});
 
     insertExerciseData({'name':'Curls', 'muscle':'Bicep', 'sets':3, 'reps':12, 'weight':20});
     insertExerciseData({'name':'Weighted Squats', 'muscle':'Leg', 'sets':3, 'reps':12, 'weight':30});
     insertExerciseData({'name':'Lateral Raise', 'muscle':'Deltoid', 'sets':3, 'reps':12, 'weight':15});
 
     insertExerciseRecord({'uid':1, 'eid':1, 'date':DateTime(2025, 11, 7, 13, 0)});
-    insertExerciseRecord({'uid':2, 'eid':2, 'date':DateTime(2025, 11, 8, 14, 0)});
-    insertExerciseRecord({'uid':2, 'eid':3, 'date':DateTime(2025, 11, 9, 14, 30)});
+    insertExerciseRecord({'uid':1, 'eid':2, 'date':DateTime(2025, 11, 8, 14, 0)});
+    insertExerciseRecord({'uid':1, 'eid':3, 'date':DateTime(2025, 11, 9, 14, 30)});
   }
 }
