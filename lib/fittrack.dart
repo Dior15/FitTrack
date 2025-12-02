@@ -241,7 +241,7 @@ class _FitTrackShellState extends State<FitTrackShell> {
                     children:[
                       DayGraph(dimensions: Size(125,125), dailyCalories:dailyFat, dailyCalorieLimit:dailyFatLimit, unit:'g'),
                       const SizedBox(height:10),
-                      const Text("Carbs", style:TextStyle(fontSize:16))
+                      const Text("Fat", style:TextStyle(fontSize:16))
                     ]
                   ),
                 ])
